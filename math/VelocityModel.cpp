@@ -236,7 +236,19 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
                 Point repWall = ForceRepRoom(allPeds[p], subroom);
 
                 // calculate new direction ei according to (6)
-                Point direction = e0(ped, room) + repPed + repWall;
+                //Point direction = e0(ped, room) + repPed + repWall;
+                Point direction = e0(ped, room);
+                //std::cout << "e0:" << direction._x << direction._y << std::endl;
+
+                // generate random angle
+                const double min_angle = -15;
+                const double max_angle = 15;
+                std::random_device rd;
+                std::mt19937 eng(rd());
+                std::uniform_int_distribution<> distr(min_angle, max_angle);
+
+                Point noise = Point(sin(2*3.14159*distr(eng)/360), sin(2*3.14159*distr(eng)/360));
+                direction = direction + noise;
                 for (int i = 0; i < size; i++) {
                       Pedestrian* ped1 = neighbours[i];
                      // calculate spacing
@@ -397,6 +409,7 @@ double VelocityModel::OptimalSpeed(Pedestrian* ped, double spacing) const
 {
       double v0 = ped->GetV0Norm();
       double T = ped->GetT();
+      //std::cout << "T:" << T << std::endl;
       double l = 2*ped->GetEllipse().GetBmax(); //assume peds are circles with const radius
       double speed = (spacing-l)/T;
       speed = (speed>0)?speed:0;

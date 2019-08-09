@@ -238,17 +238,34 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
                 // calculate new direction ei according to (6)
                 //Point direction = e0(ped, room) + repPed + repWall;
                 Point direction = e0(ped, room);
-                //std::cout << "e0:" << direction._x << direction._y << std::endl;
+                std::cout << "e0:" << direction._x << direction._y << std::endl;
 
                 // generate random angle
-                const double min_angle = -15;
-                const double max_angle = 15;
+                //const double min_angle = -25;
+                //const double max_angle = 25;
+                //std::random_device rd;
+                //std::mt19937 eng(rd());
+                //std::uniform_int_distribution<> distr(min_angle, max_angle);
+                //Point noise = Point(sin(2*3.14159*distr(eng)/360), sin(2*3.14159*distr(eng)/360));
+                //direction = direction + noise;
+
+                // set random destination
                 std::random_device rd;
                 std::mt19937 eng(rd());
-                std::uniform_int_distribution<> distr(min_angle, max_angle);
-
-                Point noise = Point(sin(2*3.14159*distr(eng)/360), sin(2*3.14159*distr(eng)/360));
+                //std::mt19937 mt(ped->GetBuilding()->GetConfig()->GetSeed());
+                //std::uniform_real_distribution<double> dist(0, 1.0);
+                std::normal_distribution<double> dist(0, 1.0); //this could be angle
+                double random_x = dist(eng);
+                std::cout << random_x << std::endl;
+                Log->Write("%f", random_x);
+                double random_y = dist(eng);
+                std::cout << random_y << std::endl;
+                Point noise = Point(direction._x + random_x, direction._y + random_y);
                 direction = direction + noise;
+                direction = direction.Normalized();
+                
+                std::cout << "direction final:" << direction._x << direction._y << std::endl;
+
                 for (int i = 0; i < size; i++) {
                       Pedestrian* ped1 = neighbours[i];
                      // calculate spacing
@@ -285,7 +302,8 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
                 //============================================================
                 //double winkel = spacings[0].second;
                 //Point tmp;
-                Point speed = direction.Normalized() *OptimalSpeed(ped, spacing);
+                //Point speed = direction.Normalized() *OptimalSpeed(ped, spacing);
+                Point speed = direction *OptimalSpeed(ped, spacing);
                 result_acc.push_back(speed);
 
 

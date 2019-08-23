@@ -29,6 +29,7 @@
 #include "math/GradientModel.h"
 #include "math/KrauszModel.h"
 #include "math/VelocityModel.h"
+#include "math/VelocityModel_adapt.h"
 #include "pedestrian/Pedestrian.h"
 #include "routing/ai_router/AIRouter.h"
 #include "routing/ff_router/ffRouter.h"
@@ -205,6 +206,17 @@ bool IniFileParser::Parse(std::string iniFile)
                }
                //only parsing one model
                if (!ParseVelocityModel(xModel, xMainNode))
+                    return false;
+               parsingModelSuccessful = true;
+               break;
+          }
+          else if ((_model==MODEL_VELOCITY_ADAPT) && (model_id==MODEL_VELOCITY_ADAPT)) {
+               if (modelName!="Tordeux2015_adapt") {
+                    Log->Write("ERROR:\t mismatch model ID and description. Did you mean Tordeux2015?");
+                    return false;
+               }
+               //only parsing one model
+               if (!ParseVelocityModel_adapt(xModel, xMainNode))
                     return false;
                parsingModelSuccessful = true;
                break;
@@ -926,6 +938,96 @@ bool IniFileParser::ParseVelocityModel(TiXmlElement* xVelocity, TiXmlElement* xM
      return true;
 }
 
+
+bool IniFileParser::ParseVelocityModel_adapt(TiXmlElement* xVelocity, TiXmlElement* xMainNode)
+{
+     //parsing the model parameters
+     Log->Write("\nINFO:\tUsing Tordeux2015 model");
+     Log->Write("INFO:\tParsing the model parameters");
+
+     TiXmlNode* xModelPara = xVelocity->FirstChild("model_parameters");
+
+     if (!xModelPara) {
+          Log->Write("ERROR: \t !!!! Changes in the operational model section !!!");
+          Log->Write("ERROR: \t !!!! The new version is in inputfiles/ship_msw/ini_ship3.xml !!!");
+          return false;
+     }
+
+     // For convenience. This moved to the header as it is not model specific
+     if (xModelPara->FirstChild("tmax")) {
+          Log->Write("ERROR: \tthe maximal simulation time section moved to the header!!!");
+          Log->Write("ERROR: \t\t <max_sim_time> </max_sim_time>\n");
+          return false;
+     }
+
+     //solver
+     if (!ParseNodeToSolver(*xModelPara))
+          return false;
+
+     //stepsize
+     if (!ParseStepSize(*xModelPara))
+          return false;
+
+     //exit crossing strategy
+     if (!ParseStrategyNodeToObject(*xModelPara))
+          return false;
+
+     //linked-cells
+     if (!ParseLinkedCells(*xModelPara))
+          return false;
+
+     //periodic
+     if (!ParsePeriodic(*xModelPara))
+          return false;
+
+     //force_ped
+     if (xModelPara->FirstChild("force_ped")) {
+
+          if (!xModelPara->FirstChildElement("force_ped")->Attribute("a"))
+               _config->SetaPed(1.0); // default value
+          else {
+               std::string a = xModelPara->FirstChildElement("force_ped")->Attribute("a");
+               _config->SetaPed(atof(a.c_str()));
+          }
+
+          if (!xModelPara->FirstChildElement("force_ped")->Attribute("D"))
+               _config->SetDPed(0.1); // default value in [m]
+          else {
+               std::string D = xModelPara->FirstChildElement("force_ped")->Attribute("D");
+               _config->SetDPed(atof(D.c_str()));
+          }
+          Log->Write("INFO: \tfrep_ped a=%0.2f, D=%0.2f", _config->GetaPed(), _config->GetDPed());
+
+     }
+     //force_wall
+     if (xModelPara->FirstChild("force_wall")) {
+
+          if (!xModelPara->FirstChildElement("force_wall")->Attribute("a"))
+               _config->SetaWall(1.0); // default value
+          else {
+               std::string a = xModelPara->FirstChildElement("force_wall")->Attribute("a");
+               _config->SetaWall(atof(a.c_str()));
+          }
+
+          if (!xModelPara->FirstChildElement("force_wall")->Attribute("D"))
+               _config->SetDWall(0.1); // default value in [m]
+          else {
+               std::string D = xModelPara->FirstChildElement("force_wall")->Attribute("D");
+               _config->SetDWall(atof(D.c_str()));
+          }
+          Log->Write("INFO: \tfrep_wall a=%0.2f, D=%0.2f", _config->GetaWall(), _config->GetDWall());
+     }
+
+     //Parsing the agent parameters
+     TiXmlNode* xAgentDistri = xMainNode->FirstChild("agents")->FirstChild("agents_distribution");
+     ParseAgentParameters(xVelocity, xAgentDistri);
+     _config->SetModel(std::shared_ptr<OperationalModel>(new VelocityModel_adapt(_exit_strategy, _config->GetaPed(),
+               _config->GetDPed(), _config->GetaWall(),
+               _config->GetDWall())));
+
+     return true;
+}
+
 void IniFileParser::ParseAgentParameters(TiXmlElement* operativModel, TiXmlNode* agentsDistri)
 {
      //Parsing the agent parameters
@@ -1080,6 +1182,12 @@ void IniFileParser::ParseAgentParameters(TiXmlElement* operativModel, TiXmlNode*
                }
 
                if (_model == 3) { // Tordeux2015
+                    double max_Eb = 2 * agentParameters->GetBmax();
+                    _config->SetDistEffMaxPed(max_Eb+agentParameters->GetT()*agentParameters->GetV0());
+                    _config->SetDistEffMaxWall(_config->GetDistEffMaxPed());
+               }
+
+               if (_model == 6) { // Tordeux2015_adapt
                     double max_Eb = 2 * agentParameters->GetBmax();
                     _config->SetDistEffMaxPed(max_Eb+agentParameters->GetT()*agentParameters->GetV0());
                     _config->SetDistEffMaxWall(_config->GetDistEffMaxPed());

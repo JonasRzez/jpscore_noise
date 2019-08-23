@@ -285,6 +285,7 @@ set(source_files
     math/ODESolver.cpp
     math/OperationalModel.cpp
     math/VelocityModel.cpp
+    math/VelocityModel_adapt.cpp
     mpi/LCGrid.cpp
     pedestrian/AgentsParameters.cpp
     pedestrian/AgentsQueue.cpp
@@ -371,6 +372,7 @@ set(header_files
     math/ODESolver.h
     math/OperationalModel.h
     math/VelocityModel.h
+    math/VelocityModel_adapt.h
     mpi/LCGrid.h
     pedestrian/AgentsParameters.h
     pedestrian/AgentsQueue.h

@@ -1,5 +1,5 @@
 /**
- * \file        VelocityModel.cpp
+ * \file        VelocityModel_adapt.cpp
  * \date        Aug. 07, 2015
  * \version     v0.7
  * \copyright   <2009-2015> Forschungszentrum Jülich GmbH. All rights reserved.
@@ -26,7 +26,7 @@
  *
  *
  **/
-#include "VelocityModel.h"
+#include "VelocityModel_adapt.h"
 
 #include "general/OpenMP.h"
 #include "geometry/SubRoom.h"
@@ -34,11 +34,11 @@
 #include "mpi/LCGrid.h"
 #include "pedestrian/Pedestrian.h"
 
-double xRight = 26.0;
-double xLeft = 0.0;
-double cutoff = 2.0;
+double xRight_adapt = 26.0;
+double xLeft_adapt = 0.0;
+double cutoff_adapt = 2.0;
 
-VelocityModel::VelocityModel(std::shared_ptr<DirectionStrategy> dir, double aped, double Dped,
+VelocityModel_adapt::VelocityModel_adapt(std::shared_ptr<DirectionStrategy> dir, double aped, double Dped,
                              double awall, double Dwall)
 {
      _direction = dir;
@@ -51,12 +51,12 @@ VelocityModel::VelocityModel(std::shared_ptr<DirectionStrategy> dir, double aped
 }
 
 
-VelocityModel::~VelocityModel()
+VelocityModel_adapt::~VelocityModel_adapt()
 {
 
 }
 
-bool VelocityModel::Init (Building* building)
+bool VelocityModel_adapt::Init (Building* building)
 {
      double _deltaH = building->GetConfig()->get_deltaH();
      double _wallAvoidDistance = building->GetConfig()->get_wall_avoid_distance();
@@ -150,7 +150,7 @@ bool VelocityModel::Init (Building* building)
     return true;
 }
 
-void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building* building, int periodic)
+void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Building* building, int periodic)
 {
       // collect all pedestrians in the simulation.
       const std::vector< Pedestrian* >& allPeds = building->GetAllPedestrians();
@@ -238,6 +238,32 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
                 // calculate new direction ei according to (6)
                 //Point direction = e0(ped, room) + repPed + repWall;
                 Point direction = e0(ped, room);
+                double yAbove = 0.5; //cutting line
+
+                Point position = ped->GetPos();
+
+                if(position._y >= yAbove and position._y < 6.7){
+                  if (abs(position._x) < 0.7){
+                    if (position._x > 0 ){
+                     Point target = Point(0.3, 0); //1.2m
+                     direction = target-position;
+                    } else {
+                     Point target = Point(-0.3, 0); //1.2m
+                     direction = target-position;
+                           }
+                  } else{
+                    if (position._x > 0 ){
+                     Point target = Point(0.7, 0); //2.3m
+                     direction = target-position;
+                    } else {
+                     Point target = Point(-0.7, 0); //2.3m
+                     direction = target-position;
+                           }
+                        }
+                }
+                //if(ped->GetPos()._y >= yAbove and ped->GetPos()._x <0){
+                //  direction = ...
+
                 //std::cout << "e0:" << direction._x << direction._y << std::endl;
 
                 // generate random angle
@@ -287,7 +313,7 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
                 //       std::cout << "time: " << ped->GetGlobalTime() << "  |  updateRate  " <<ped->GetUpdateRate() << "   modulo " <<fmod(ped->GetGlobalTime(), ped->GetUpdateRate())<<std::endl;
 
                 // calculate min spacing
-                std::sort(spacings.begin(), spacings.end(), sort_pred());
+                std::sort(spacings.begin(), spacings.end(), sort_pred_adapt());
                 double spacing = spacings[0].first;
                 //============================================================
                 // TODO: Hack for Head on situations: ped1 x ------> | <------- x ped2
@@ -343,8 +369,8 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
                 }
                 ped->SetPos(pos_neu);
                 if(periodic){
-                      if(ped->GetPos()._x >= xRight){
-                            ped->SetPos(Point(ped->GetPos()._x - (xRight - xLeft), ped->GetPos()._y));
+                      if(ped->GetPos()._x >= xRight_adapt){
+                            ped->SetPos(Point(ped->GetPos()._x - (xRight_adapt - xLeft_adapt), ped->GetPos()._y));
                             //ped->SetID( ped->GetID() + 1);
                       }
                 }
@@ -364,13 +390,13 @@ void VelocityModel::ComputeNextTimeStep(double current, double deltaT, Building*
       pedsToRemove.clear();
 }
 
-Point VelocityModel::e0(Pedestrian* ped, Room* room) const
+Point VelocityModel_adapt::e0(Pedestrian* ped, Room* room) const
 {
       Point target;
       if(_direction && ped->GetExitLine())
            target = _direction->GetTarget(room, ped); // target is where the ped wants to be after the next timestep
       else { //@todo: we need a model for waiting pedestrians
-           std::cout << ped->GetID() << " VelocityModel::e0 Ped has no navline.\n";
+           std::cout << ped->GetID() << " VelocityModel_adapt::e0 Ped has no navline.\n";
            //exit(EXIT_FAILURE);
            // set random destination
            std::mt19937 mt(ped->GetBuilding()->GetConfig()->GetSeed());
@@ -416,14 +442,14 @@ Point VelocityModel::e0(Pedestrian* ped, Room* room) const
       }
       //Log->Write("%f    %f", desired_direction._x, desired_direction._y);
 //      if (desired_direction.NormSquare() < 0.1) {
-//           Log->Write("ERROR:\t desired_direction in VelocityModel::e0 is too small (%f, %f)", desired_direction._x, desired_direction._y);
+//           Log->Write("ERROR:\t desired_direction in VelocityModel_adapt::e0 is too small (%f, %f)", desired_direction._x, desired_direction._y);
 //
 //      }
       return desired_direction;
 }
 
 
-double VelocityModel::OptimalSpeed(Pedestrian* ped, double spacing) const
+double VelocityModel_adapt::OptimalSpeed(Pedestrian* ped, double spacing) const
 {
       double v0 = ped->GetV0Norm();
       double T = ped->GetT();
@@ -438,15 +464,15 @@ double VelocityModel::OptimalSpeed(Pedestrian* ped, double spacing) const
 }
 
 // return spacing and id of the nearest pedestrian
-my_pair VelocityModel::GetSpacing(Pedestrian* ped1, Pedestrian* ped2, Point ei, int periodic) const
+my_pair VelocityModel_adapt::GetSpacing(Pedestrian* ped1, Pedestrian* ped2, Point ei, int periodic) const
 {
       Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
       if(periodic){
             double x = ped1->GetPos()._x;
             double x_j = ped2->GetPos()._x;
 
-            if((xRight-x) + (x_j-xLeft) <= cutoff){
-                 distp12._x = distp12._x + xRight - xLeft;
+            if((xRight_adapt-x) + (x_j-xLeft_adapt) <= cutoff_adapt){
+                 distp12._x = distp12._x + xRight_adapt - xLeft_adapt;
             }
       }
       double Distance = distp12.Norm();
@@ -455,8 +481,8 @@ my_pair VelocityModel::GetSpacing(Pedestrian* ped1, Pedestrian* ped2, Point ei, 
       if (Distance >= J_EPS) {
             ep12 = distp12.Normalized();
       } else {
-            //printf("ERROR: \tin VelocityModel::forcePedPed() ep12 can not be calculated!!!\n");
-            Log->Write("WARNING: \tin VelocityModel::GetSPacing() ep12 can not be calculated!!!\n");
+            //printf("ERROR: \tin VelocityModel_adapt::forcePedPed() ep12 can not be calculated!!!\n");
+            Log->Write("WARNING: \tin VelocityModel_adapt::GetSPacing() ep12 can not be calculated!!!\n");
             Log->Write("\t\t Pedestrians are too near to each other (%f).", Distance);
             my_pair(FLT_MAX, ped2->GetID());
             exit(EXIT_FAILURE); //TODO
@@ -472,7 +498,7 @@ my_pair VelocityModel::GetSpacing(Pedestrian* ped1, Pedestrian* ped2, Point ei, 
       else
             return  my_pair(FLT_MAX, ped2->GetID());
 }
-Point VelocityModel::ForceRepPed(Pedestrian* ped1, Pedestrian* ped2, int periodic) const
+Point VelocityModel_adapt::ForceRepPed(Pedestrian* ped1, Pedestrian* ped2, int periodic) const
 {
      Point F_rep(0.0, 0.0);
      // x- and y-coordinate of the distance between p1 and p2
@@ -481,8 +507,8 @@ Point VelocityModel::ForceRepPed(Pedestrian* ped1, Pedestrian* ped2, int periodi
      if(periodic){
             double x = ped1->GetPos()._x;
             double x_j = ped2->GetPos()._x;
-            if((xRight-x) + (x_j-xLeft) <= cutoff){
-                 distp12._x = distp12._x + xRight - xLeft;
+            if((xRight_adapt-x) + (x_j-xLeft_adapt) <= cutoff_adapt){
+                 distp12._x = distp12._x + xRight_adapt - xLeft_adapt;
             }
       }
 
@@ -494,8 +520,8 @@ Point VelocityModel::ForceRepPed(Pedestrian* ped1, Pedestrian* ped2, int periodi
      if (Distance >= J_EPS) {
           ep12 = distp12.Normalized();
      } else {
-          //printf("ERROR: \tin VelocityModel::forcePedPed() ep12 can not be calculated!!!\n");
-          Log->Write(KRED "\nWARNING: \tin VelocityModel::forcePedPed() ep12 can not be calculated!!!" RESET);
+          //printf("ERROR: \tin VelocityModel_adapt::forcePedPed() ep12 can not be calculated!!!\n");
+          Log->Write(KRED "\nWARNING: \tin VelocityModel_adapt::forcePedPed() ep12 can not be calculated!!!" RESET);
           Log->Write("\t\t Pedestrians are too near to each other (dist=%f).", Distance);
           Log->Write("\t\t Maybe the value of <a> in force_ped should be increased. Going to exit.\n");
           printf("ped1 %d  ped2 %d\n", ped1->GetID(), ped2->GetID());
@@ -517,7 +543,7 @@ Point VelocityModel::ForceRepPed(Pedestrian* ped1, Pedestrian* ped2, int periodi
      return F_rep;
 }//END Velocity:ForceRepPed()
 
-Point VelocityModel::ForceRepRoom(Pedestrian* ped, SubRoom* subroom) const
+Point VelocityModel_adapt::ForceRepRoom(Pedestrian* ped, SubRoom* subroom) const
 {
      Point f(0., 0.);
      const Point& centroid = subroom->GetCentroid();
@@ -564,7 +590,7 @@ Point VelocityModel::ForceRepRoom(Pedestrian* ped, SubRoom* subroom) const
      return f;
 }
 
-Point VelocityModel::ForceRepWall(Pedestrian* ped, const Line& w, const Point& centroid, bool inside) const
+Point VelocityModel_adapt::ForceRepWall(Pedestrian* ped, const Line& w, const Point& centroid, bool inside) const
 {
      Point F_wrep = Point(0.0, 0.0);
      Point pt = w.ShortestPoint(ped->GetPos());
@@ -605,7 +631,7 @@ Point VelocityModel::ForceRepWall(Pedestrian* ped, const Line& w, const Point& c
      return F_wrep;
 }
 
-std::string VelocityModel::GetDescription()
+std::string VelocityModel_adapt::GetDescription()
 {
      std::string rueck;
      char tmp[CLENGTH];
@@ -617,29 +643,29 @@ std::string VelocityModel::GetDescription()
      return rueck;
 }
 
-std::shared_ptr<DirectionStrategy> VelocityModel::GetDirection() const
+std::shared_ptr<DirectionStrategy> VelocityModel_adapt::GetDirection() const
 {
      return _direction;
 }
 
 
-double VelocityModel::GetaPed() const
+double VelocityModel_adapt::GetaPed() const
 {
      return _aPed;
 }
 
-double VelocityModel::GetDPed() const
+double VelocityModel_adapt::GetDPed() const
 {
      return _DPed;
 }
 
 
-double VelocityModel::GetaWall() const
+double VelocityModel_adapt::GetaWall() const
 {
      return _aWall;
 }
 
-double VelocityModel::GetDWall() const
+double VelocityModel_adapt::GetDWall() const
 {
      return _DWall;
 }

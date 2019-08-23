@@ -54,6 +54,8 @@ private:
 
      bool ParseVelocityModel(TiXmlElement* xVelocity, TiXmlElement* xMain);
 
+     bool ParseVelocityModel_adapt(TiXmlElement* xVelocity, TiXmlElement* xMain);
+
      void ParseAgentParameters(TiXmlElement* operativModel, TiXmlNode* agentDistri);
 
      bool ParseRoutingStrategies(TiXmlNode* routingNode, TiXmlNode* agentDistri);

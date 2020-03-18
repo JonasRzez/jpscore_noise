@@ -1,0 +1,59 @@
+INFO: 	Loading and parsing the persons attributes
+INFO:	risk tolerance mu = 0.000000, risk tolerance sigma = 1.000000
+
+INFO: 	...Done
+INFO:	Not parsing transition from file
+INFO:	Got 2 transitions
+INFO: 	Loading building file successful!!!
+
+INFO:	Loading goal
+INFO:	  Goal id: 0
+INFO:	  Goal caption: goal 1
+INFO:	  Goal room_id: -1
+INFO:	  Goal subroom_id: -1
+INFO:	  finished parsing goal 0
+INFO:	Goal file not parsed
+INFO:	done with loading extra routing information
+INFO:	Loading the traffic info
+Info:	  no room info found in inifile
+INFO:	Parsed Door: 
+	>> ID: 2
+	>> state: open
+
+Info:	  no traffic file found.
+INFO:	Done with loading traffic info file
+--------
+INFO:	Loading the train info
+WARNING:	No train constraints were found. Continue.
+INFO: 	Init Geometry
+INFO:	enter correct ...
+INFO:	Leave geometry correct with success (0.047 s)
+INFO: 	InitInsideGoals successful!!!
+
+INFO: 	Init Geometry successful!!!
+
+INFO: 	Init Distribute
+INFO: 	Distributing 30 Agents in Room/Subrom [1/0]! Maximum allowed: 228
+	...Done
+INFO: 	Initializing the grid with cell size: 2.200000 
+INFO: 	Done with Initializing the grid 
+INFO:	Init the Global Router Engine
+INFO: 	Exit to outside found: 15 [trans_2_room_0_subroom_0]
+INFO:	Done with the Global Router Engine!
+INFO: 	Checking the geometry for artifacts: (Ignore Warnings, if ff_[...] router is used!)
+INFO: 	...Done!!!
+
+INFO:	 nPeds 30 received
+INFO: 	Adding a new routing Engine with the key: 2:3
+
+INFO: 	Looking for pre-defined events in other files
+INFO: 	No realtime events found
+INFO: 	Parsing the event file
+ERROR: 	Failed to open file
+ERROR: 	 could not parse the event file.
+ERROR: 	Could not initialize events handling
+INFO: 	Reading schedule
+INFO: 	Parsing the schedule file
+ERROR: 	Failed to open file
+ERROR: 	 could not parse the schedule file.
+ERROR: 	Could not initialize schedule handling

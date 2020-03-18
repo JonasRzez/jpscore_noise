@@ -1,0 +1,287 @@
+----
+JuPedSim - JPSreport
+
+Current date   : Thu Feb 27 19:36:42 2020
+Version        : 0.8.4
+Compiler       : clang++ (11.0.0)
+Commit hash    : v0.8.4-924-gf2e0b427
+Commit date    : Tue Feb 25 18:18:56 2020
+Branch         : develop
+INFO: 	Geometry File is: </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/56_geo.xml>
+INFO: 	Format of the trajectory file is: <.txt>
+INFO: 	Input trajectory file is <evac_traj.txt>
+INFO: 	Input directory for loading trajectory is </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/./>
+INFO: 	created directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report>
+INFO: 	Output directory for results is:	</Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report>
+INFO: 	Measure area id  <1> with type <BoundingBox>
+		Measure area points  < -0.500, 0.500>
+		Measure area points  < -0.500, 1.500>
+		Measure area points  < 0.500, 0.500>
+		Measure area points  < 0.500, 1.500>
+		Length in movement direction 1.000
+INFO: 	Measure area id  <2> with type <Line>
+		Measurement line starts from  <-2.000, 0.000> to <2.000, 0.000>
+INFO: 	Both x and y-component of coordinates will be used to calculate instantaneous velocity over <10 frames>
+INFO: 	Method A is selected
+INFO: 	Measurement area id <2> will be used for analysis
+	Frame interval used for calculating flow is <100> frame
+INFO: 	Method Voronoi is selected
+INFO: 	Measurement area id <1> will be used for analysis
+	the analysis starts from frame <0>
+	the analysis stops from frame <0>
+INFO: 	Individual FD will be output
+INFO: 	Profiles will be calculated
+INFO: 	The discretized grid size in x, y direction is: < 0.200000 >m by < 0.200000 >m 
+INFO: 	Finish parsing inifile
+
+INFO: 	Start Analysis for the file: evac_traj.txt
+**********************************************************************
+INFO: 	Loading building file successful!!!
+
+INFO: 	Init Geometry
+INFO: 	Init Geometry successful!!!
+
+INFO:	ReadGeometry with /Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/56_geo.xml
+INFO:	the name of the trajectory is: <evac_traj.txt>
+INFO:	full name of the trajectory is: </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/./evac_traj.txt>
+INFO:	Frame rate fps: <25.00>
+INFO: pos_id: 0
+INFO: pos_fr: 1
+INFO: pos_x: 2
+INFO: pos_y: 3
+INFO: pos_z: 4
+INFO: pos_vd: 9
+INFO:	 Finished reading the data
+INFO: Got 34361 lines
+INFO: minID: 1
+INFO: maxID: 50
+INFO: minFrame: 0
+INFO: numFrames: 1278
+INFO: Total number of Agents: 50
+INFO: Enter CreateGlobalVariables with numPeds=50 and numFrames=1278
+INFO: allocate memory for xCor
+INFO: allocate memory for yCor
+INFO: allocate memory for zCor
+INFO: allocate memory for index
+INFO: allocate memory for vComp
+ Finished memory allocation
+INFO: Leave CreateGlobalVariables()
+INFO: Create Global Variables done
+convert x and y
+Save the data for each frame
+------------------------Analyzing with Method A-----------------------------
+frame ID = 0
+frame ID = 100
+frame ID = 200
+frame ID = 300
+frame ID = 400
+frame ID = 500
+frame ID = 600
+frame ID = 700
+frame ID = 800
+frame ID = 900
+frame ID = 1000
+frame ID = 1100
+frame ID = 1200
+INFO:	create the directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report/Fundamental_Diagram/FlowVelocity>
+INFO:	Success with Method A using measurement area id 2!
+
+INFO:	Method Voronoi: frame rate fps: <25.00>, start: <0>, stop: <0> (minFrame = 0)
+INFO:	create the directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report/Fundamental_Diagram/Classical_Voronoi>
+INFO:	create the directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report/Fundamental_Diagram/IndividualFD>
+------------------------Analyzing with Method Voronoi-----------------------------
+INFO:	frame ID = 0
+INFO:	create the directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report/Fundamental_Diagram/Classical_Voronoi/field/velocity>
+INFO:	create the directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/report/Fundamental_Diagram/Classical_Voronoi/field/density>
+INFO:	frame ID = 50
+INFO:	frame ID = 100
+INFO:	frame ID = 150
+INFO:	frame ID = 200
+INFO:	frame ID = 250
+INFO:	frame ID = 300
+INFO:	frame ID = 350
+Warning:	Pedestrian at <x=0.0100, y=-1.0000> is not in geometry and not considered in analysis!
+INFO:	frame ID = 400
+INFO:	frame ID = 450
+INFO:	frame ID = 500
+INFO:	frame ID = 550
+INFO:	frame ID = 600
+INFO:	frame ID = 650
+INFO:	frame ID = 700
+INFO:	frame ID = 750
+Warning:	Pedestrian at <x=0.0100, y=-1.0000> is not in geometry and not considered in analysis!
+INFO:	frame ID = 800
+INFO:	frame ID = 850
+INFO:	frame ID = 900
+INFO:	frame ID = 950
+INFO:	frame ID = 1000
+INFO:	frame ID = 1050
+Warning:	Pedestrian at <x=0.0000, y=-1.0000> is not in geometry and not considered in analysis!
+INFO:	frame ID = 1100
+INFO:	frame ID = 1150
+INFO:	frame ID = 1200
+INFO: 	The number of the pedestrians is small (3). Frame = 1200 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1201 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1202 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1203 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1204 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1205 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1206 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1207 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1208 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1209 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1210 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1211 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1212 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1213 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1214 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1215 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1216 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1217 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1218 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1219 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (3). Frame = 1220 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1221 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1222 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1223 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1224 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1225 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1226 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1227 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1228 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1229 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1230 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1231 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1232 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1233 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1234 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1235 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1236 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1237 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1238 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1239 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1240 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1241 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1242 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1243 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1244 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1245 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1246 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1247 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1248 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1249 (minFrame = 0)
+
+INFO:	frame ID = 1250
+INFO: 	The number of the pedestrians is small (2). Frame = 1250 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1251 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1252 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1253 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (2). Frame = 1254 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1255 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1256 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1257 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1258 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1259 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1260 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1261 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1262 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1263 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1264 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1265 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1266 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1267 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1268 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1269 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1270 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1271 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1272 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1273 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1274 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1275 (minFrame = 0)
+
+INFO: 	The number of the pedestrians is small (1). Frame = 1276 (minFrame = 0)
+
+Warning:	Pedestrian at <x=-0.0000, y=-1.0000> is not in geometry and not considered in analysis!
+INFO: 	The number of the pedestrians is small (0). Frame = 1277 (minFrame = 0)
+
+INFO:	Success with Method J using measurement area id 1!
+
+**********************************************************************
+INFO: 	End Analysis for the file: evac_traj.txt
+
+Time elapsed:	 1824.19 [s]
+

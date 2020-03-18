@@ -1,0 +1,15 @@
+----
+JuPedSim - JPSreport
+
+Current date   : Thu Feb 27 19:15:56 2020
+Version        : 0.8.4
+Compiler       : clang++ (11.0.0)
+Commit hash    : v0.8.4-924-gf2e0b427
+Commit date    : Tue Feb 25 18:18:56 2020
+Branch         : develop
+INFO: 	Default output directory
+INFO: 	created directory </Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/Output>
+INFO: 	Output directory for results is:	</Users/jonas/Documents/phd/c++/jpscore/files/evacuation_files/report/Output>
+INFO: 	Finish parsing inifile
+WARNING: No measurement method enabled. Nothing to do.pwd
+

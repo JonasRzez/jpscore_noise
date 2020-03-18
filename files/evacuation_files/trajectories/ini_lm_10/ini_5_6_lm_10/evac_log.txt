@@ -1,0 +1,83 @@
+INFO: 	Loading and parsing the persons attributes
+INFO:	risk tolerance mu = 0.000000, risk tolerance sigma = 1.000000
+
+INFO: 	...Done
+INFO:	Not parsing transition from file
+INFO:	Got 1 transitions
+INFO: 	Loading building file successful!!!
+
+INFO:	Loading the traffic info
+Info:	  no room info found in inifile
+INFO:	Parsed Door: 
+	>> ID: 1
+	>> state: open
+
+Info:	  no traffic file found.
+INFO:	Done with loading traffic info file
+--------
+INFO:	Loading the train info
+WARNING:	No train constraints were found. Continue.
+INFO: 	Init Geometry
+INFO:	enter correct ...
+INFO:	Leave geometry correct with success (0.105 s)
+INFO: 	InitInsideGoals successful!!!
+
+INFO: 	Init Geometry successful!!!
+
+INFO: 	Init Distribute
+INFO: 	Distributing 10 Agents in Room/Subrom [1/1]! Maximum allowed: 123
+	...Done
+INFO: 	Initializing the grid with cell size: 2.200000 
+INFO: 	Done with Initializing the grid 
+INFO: 	Adding distances in Room 1 to matrix
+INFO:	 FloydWarshall done!
+INFO: 	FF Router Init done.
+INFO: 	Checking the geometry for artifacts: (Ignore Warnings, if ff_[...] router is used!)
+WARNING:	 Room [1] Subroom [1] is not convex!
+        	 you might consider adding extra hlines in your routing.xml file
+INFO: 	...Done!!!
+
+INFO:	 Init Operational Model starting ...
+INFO:	 Init DirectionLOCALFloorfield starting ...
+INFO: 	Calling Constructor of UnivFFviaFM(Room-scale) in DirectionLocalFloorfield::Init(...)
+INFO: 	Time to construct FF in DirectionLocalFloorfield: 0.010885
+INFO:	 Init DirectionLOCALFloorfield done
+INFO:	 Init Operational Model done
+Got 0 Train Types
+WARNING:	Got 0 Train Time Tables
+INFO:	 nPeds 10 received
+INFO: 	Adding a new routing Engine with the key: 1
+
+INFO: 	Looking for pre-defined events in other files
+INFO: 	No realtime events found
+INFO: 	Parsing the event file
+ERROR: 	Failed to open file
+ERROR: 	 could not parse the event file.
+ERROR: 	Could not initialize events handling
+INFO: 	Reading schedule
+INFO: 	No events found
+INFO: 	Start runSimulation() with 10 pedestrians
+INFO: 	No events found
+INFO: 	No events no ttt file found
+INFO: 	No events no train types file found
+ERROR: 	Could not find a route for pedestrian 5 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 6 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 10 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 1 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 7 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 3 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 2 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 9 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 4 in room 1 and subroom 1
+ERROR: 	Could not find a route for pedestrian 8 in room 1 and subroom 1
+
+INFO: 	End runSimulation()
+
+Exec Time [s]     : 0.00
+Evac Time [s]     : 11.66
+Realtime Factor   : inf X 
+Number of Threads : 16
+Warnings          : 3
+Errors            : 13
+Deleted Agents    : 10
+

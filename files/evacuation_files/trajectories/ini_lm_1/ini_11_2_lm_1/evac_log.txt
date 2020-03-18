@@ -1,0 +1,31 @@
+INFO: 	Loading and parsing the persons attributes
+INFO:	risk tolerance mu = 0.000000, risk tolerance sigma = 1.000000
+
+INFO: 	...Done
+INFO:	Not parsing transition from file
+INFO:	Got 1 transitions
+INFO: 	Loading building file successful!!!
+
+INFO:	Loading the traffic info
+Info:	  no room info found in inifile
+INFO:	Parsed Door: 
+	>> ID: 1
+	>> state: open
+
+Info:	  no traffic file found.
+INFO:	Done with loading traffic info file
+--------
+INFO:	Loading the train info
+WARNING:	No train constraints were found. Continue.
+INFO: 	Init Geometry
+INFO:	enter correct ...
+INFO:	Leave geometry correct with success (0.106 s)
+INFO: 	InitInsideGoals successful!!!
+
+INFO: 	Init Geometry successful!!!
+
+INFO: 	Init Distribute
+ERROR: 	Cannot distribute 1 agents in Room 1 . Maximum allowed: 0
+
+ERROR:	could not distribute the pedestrians
+

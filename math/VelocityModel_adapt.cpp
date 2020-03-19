@@ -238,26 +238,25 @@ void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Bui
                 // calculate new direction ei according to (6)
                 //Point direction = e0(ped, room) + repPed + repWall;
                 Point direction = e0(ped, room);
-                //Point direction;
-                double yAbove = 1.; //cutting line
+                double yAbove = 0.5; //cutting line
 
                 Point position = ped->GetPos();
 
-                if(position._y >= yAbove){
-                  if (abs(position._x) <= 1.0){
+                if(position._y >= yAbove and position._y < 6.7){
+                  if (abs(position._x) < 0.7){
                     if (position._x > 0 ){
-                     Point target = Point(position._x, 0); //1.2m
+                     Point target = Point(0.3, 0); //1.2m
                      direction = target-position;
                     } else {
-                     Point target = Point(position._x, 0); //1.2m
+                     Point target = Point(-0.3, 0); //1.2m
                      direction = target-position;
                            }
                   } else{
                     if (position._x > 0 ){
-                     Point target = Point(0., 0); //2.3m
+                     Point target = Point(0.7, 0); //2.3m
                      direction = target-position;
                     } else {
-                     Point target = Point(-0., 0); //2.3m
+                     Point target = Point(-0.7, 0); //2.3m
                      direction = target-position;
                            }
                         }
@@ -287,7 +286,7 @@ void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Bui
                 //Log->Write("%f", random_x);
                 double random_y = dist(eng);
                 //std::cout << random_y << std::endl;
-                Point noise = Point(random_x, random_y);
+                Point noise = Point(direction._x + random_x, direction._y + random_y);
                 direction = direction + noise;
                 direction = direction.Normalized();
                 
@@ -401,7 +400,7 @@ Point VelocityModel_adapt::e0(Pedestrian* ped, Room* room) const
            //exit(EXIT_FAILURE);
            // set random destination
            std::mt19937 mt(ped->GetBuilding()->GetConfig()->GetSeed());
-           std::uniform_real_distribution<double> dist(0, 0.0);
+           std::uniform_real_distribution<double> dist(0, 1.0);
            double random_x = dist(mt);
            double random_y = dist(mt);
            Point P1 = Point(ped->GetPos()._x - random_x, ped->GetPos()._y - random_y);

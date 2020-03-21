@@ -238,19 +238,19 @@ void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Bui
                 // calculate new direction ei according to (6)
                 //Point direction = e0(ped, room) + repPed + repWall;
                 Point direction = e0(ped, room);
-                double yAbove = 0.5; //cutting line
+                double yAbove = -1.0; //cutting line
 
                 Point position = ped->GetPos();
-
-                if(position._y >= yAbove and position._y < 6.7){
-                  if (abs(position._x) < 0.7){
+               /*
+                if(position._y >= yAbove){
+                  if (abs(position._x) <= 1.0){
                     if (position._x > 0 ){
                      Point target = Point(0.3, 0); //1.2m
                      direction = target-position;
                     } else {
                      Point target = Point(-0.3, 0); //1.2m
                      direction = target-position;
-                           }
+                            }
                   } else{
                     if (position._x > 0 ){
                      Point target = Point(0.7, 0); //2.3m
@@ -260,7 +260,12 @@ void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Bui
                      direction = target-position;
                            }
                         }
-                }
+                }*/
+               /*if(position._y >= yAbove && abs(position._x) <= 1){
+                   Point target = Point(position._x,0.);
+                   direction = target - position;
+               }*/
+               
                 //if(ped->GetPos()._y >= yAbove and ped->GetPos()._x <0){
                 //  direction = ...
 
@@ -280,13 +285,13 @@ void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Bui
                 std::mt19937 eng(rd());
                 //std::mt19937 mt(ped->GetBuilding()->GetConfig()->GetSeed());
                 //std::uniform_real_distribution<double> dist(0, 1.0);
-                std::normal_distribution<double> dist(0, 1.0); //this could be angle
+                std::normal_distribution<double> dist(0, 0.4); //this could be angle
                 double random_x = dist(eng);
                 //std::cout << random_x << std::endl;
                 //Log->Write("%f", random_x);
                 double random_y = dist(eng);
                 //std::cout << random_y << std::endl;
-                Point noise = Point(direction._x + random_x, direction._y + random_y);
+                Point noise = Point( random_x,  random_y);
                 direction = direction + noise;
                 direction = direction.Normalized();
                 

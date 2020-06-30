@@ -5,8 +5,6 @@
 # -DBUILD_TESTING=ON (default OFF) for python tests
 # -DBUILD_CPPUNIT_TEST=ON (default OFF) for unit tests
 # -D Boost_NO_SYSTEM_PATHS=true (default false) -D BOOST_ROOT=PATH_where_to_find_boost
-# -D AIROUTER=true (default false)
-# -D JPSFIRE=ON (default OFF)
 #--------------------------------------------------------------------------
 ################################################################################
 # Project setup
@@ -17,7 +15,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include(helper_functions)
+include(code-coverage)
+
 print_var(PROJECT_VERSION)
 
 # Set default build type to release
@@ -32,6 +35,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+check_prefix_path()
+
 ################################################################################
 # Optional features
 ################################################################################
@@ -44,14 +49,22 @@ print_var(BUILD_CPPUNIT_TEST)
 set(BUILD_DOC OFF CACHE BOOL "Build doxygen documentation")
 print_var(BUILD_DOC)
 
-set(JPSFIRE OFF CACHE BOOL "Build with jpsfire support")
-print_var(JPSFIRE)
-
-set(AIROUTER OFF CACHE BOOL "Build with AI router support")
-print_var(AIROUTER)
-
-set(USE_OPENMP ON CACHE BOOL "Build with OpenMP")
+# Due to old OpenMP implementation in MSVC we disable OpenMP on Windows for the moment.
+if(${CMAKE_SYSTEM} MATCHES "Windows")
+    set(USE_OPENMP Off)
+    message(WARNING "OpenMP is disabled on Windows")
+else()
+    set(USE_OPENMP ON CACHE BOOL "Build with OpenMP")
+endif()
 print_var(USE_OPENMP)
+
+if(POLICY CMP0069)
+    cmake_policy(SET CMP0069 NEW)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT USE_IPO)
+else()
+    set(USE_IPO ON)
+endif()
 
 set(BUILD_WITH_ASAN OFF CACHE BOOL
   "Build with address sanitizer support. Linux / macOS only.")
@@ -74,8 +87,7 @@ list(APPEND COMMON_COMPILE_OPTIONS
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wall>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wextra>
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-fdiagnostics-color=always>
-    $<$<CXX_COMPILER_ID:MSVC>:/W4>
-    $<$<CXX_COMPILER_ID:MSVC>:/WX>
+    $<$<CXX_COMPILER_ID:MSVC>:/W2>
     $<$<CXX_COMPILER_ID:MSVC>:/EHsc>
 )
 
@@ -84,19 +96,23 @@ list(APPEND COMMON_COMPILE_OPTIONS
 ################################################################################
 add_subdirectory(third-party)
 
-# CMakes find_pacakge has no support for generator expressions hence we have to
-# do this the hard way
-if(BUILD_CPPUNIT_TEST)
-    list(APPEND BOOST_COMPONENTS
-        unit_test_framework
-    )
-endif()
-if(${CMAKE_SYSTEM} MATCHES "Darwin")
-    list(APPEND BOOST_COMPONENTS
-        filesystem
-    )
-endif()
+# libfmt
+find_package(fmt 6.0 REQUIRED CONFIG)
+
+# spdlog
+find_package(spdlog 1.3 REQUIRED CONFIG)
+
+# CLI11
+find_package(CLI11 1.8 REQUIRED CONFIG)
+
+# Boost
 find_package(Boost 1.65 REQUIRED ${BOOST_COMPONENTS})
+
+# std::filesystem needs to be linked on gcc < 9
+add_library(fs INTERFACE)
+target_link_libraries(fs INTERFACE
+    $<$<PLATFORM_ID:Linux>:stdc++fs>
+)
 
 # CMakes find module for openmp (FindOpenMP) is currently (cmake 1.15.1) broken
 # in several ways:
@@ -150,27 +166,12 @@ if(USE_OPENMP)
 else()
     list(APPEND COMMON_COMPILE_OPTIONS
         # Disable warnigns about omp pragmas
-        -Wno-unknown-pragmas
+         $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:-Wno-unknown-pragmas>
     )
 endif()
-
-if(AIROUTER)
-    set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE ON)
-    find_package(CGAL REQUIRED)
-    list(APPEND COMMON_COMPILE_OPTIONS
-        # CGAL package puts a gcc only optimization flag on the link line for
-        # all targets that use CGAL. Since we do not want to see an waring for
-        # an unknown optimization flag on clang we silence this warning.
-        $<$<CXX_COMPILER_ID:Clang>:-Wno-ignored-optimization-argument>
-    )
-endif()
-
 
 find_package(Threads REQUIRED)
-
-if(BUILD_TESTING)
-    find_package(PythonInterp 3 REQUIRED)
-endif()
+find_package(PythonInterp 3 REQUIRED)
 
 ################################################################################
 # VCS info
@@ -187,7 +188,6 @@ if (GIT_SCM AND GITDIR)
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_SHA1
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
     # branch
     execute_process(
     COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
@@ -203,6 +203,12 @@ if (GIT_SCM AND GITDIR)
     OUTPUT_VARIABLE GIT_DATE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+  execute_process(COMMAND
+    "${GIT_EXECUTABLE}" describe --tags --abbrev=0
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE GIT_TAG
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
     # the subject of the commit
     execute_process(COMMAND
     "${GIT_EXECUTABLE}" log -1 --format=%s
@@ -210,32 +216,33 @@ if (GIT_SCM AND GITDIR)
     OUTPUT_VARIABLE GIT_COMMIT_SUBJECT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
     # remove # from subject
-    string(REGEX REPLACE "\#"
+    string(REGEX REPLACE "[\#\"]+"
        "" GIT_COMMIT_SUBJECT
        ${GIT_COMMIT_SUBJECT})
-
 else()
     message(STATUS "Not in a git repo")
-    set(GIT_SHA1 "UNKNONW")
-    set(GIT_DATE "UNKNONW")
-    set(GIT_COMMIT_SUBJECT "UNKNONW")
-    set(GIT_BRANCH "UNKNONW")
+    set(GIT_SHA1 "UNKNOWN")
+    set(GIT_DATE "UNKNOWN")
+    set(GIT_COMMIT_SUBJECT "UNKNOWN")
+    set(GIT_BRANCH "UNKNOWN")
+    set(GIT_TAG "UNKNOWN")
 endif()
 
-list(APPEND GIT_BUILD_INFO_DEFINES
+add_library(git-info INTERFACE)
+target_compile_definitions(git-info INTERFACE
     GIT_COMMIT_HASH="${GIT_SHA1}"
     GIT_COMMIT_DATE="${GIT_DATE}"
+    GIT_TAG="${GIT_TAG}"
     GIT_COMMIT_SUBJECT="${GIT_COMMIT_SUBJECT}"
     GIT_BRANCH="${GIT_BRANCH}"
 )
-
 ################################################################################
 # Documentation
 ################################################################################
 if(BUILD_DOC)
     find_package(Doxygen REQUIRED)
     configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen/Doxyfile.in
         ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         @ONLY
     )
@@ -244,6 +251,7 @@ if(BUILD_DOC)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM
+<<<<<<< HEAD
     )
 endif(BUILD_DOC)
 
@@ -573,19 +581,24 @@ if(BUILD_WITH_ASAN)
     add_executable(jpscore_asan
         ${jpscore_source}
     )
+=======
+        )
+    # generate file titlepage.tex based on titlepage.tex.in
+    configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/docs/jps_guide/titlepage.tex.in
+            ${CMAKE_CURRENT_SOURCE_DIR}/docs/jps_guide/titlepage.tex
+      @ONLY
+      )
+    add_custom_target(guide
+        "${PYTHON_EXECUTABLE}" ${CMAKE_CURRENT_SOURCE_DIR}/docs/jps_guide/make_guide.py
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/jps_guide
+        COMMENT "Generating guide"
+        VERBATIM
+        )
+>>>>>>> 6a785190603b9b3c4122e5c94b156b0ef5fa5440
 
-    target_compile_options(jpscore_asan PRIVATE
-        ${jpscore_compile_options}
-        -fno-omit-frame-pointer
-        -fno-optimize-sibling-calls
-        -fsanitize=address
-    )
+endif(BUILD_DOC)
 
-    target_link_libraries(jpscore_asan
-        ${jpscore_link_libraries}
-        -fsanitize=address
-    )
-endif()
 ################################################################################
 # Testing
 ################################################################################
@@ -594,154 +607,88 @@ if(BUILD_CPPUNIT_TEST OR BUILD_TESTING)
 endif()
 
 ################################################################################
-# Unit tests
+# Add libraries / executables
 ################################################################################
-if (BUILD_CPPUNIT_TEST)
-    set(UNIT_TESTS
-        Utest/testEffectiveDistanceToEllipse.cpp
-        Utest/testEffectiveDistanceToLine.cpp
-        Utest/testGetArea.cpp
-        Utest/testIsInside.cpp
-        Utest/testIsOn.cpp
-        Utest/testIsOutside.cpp
-        Utest/testPointOnEllipse.cpp
-        Utest/testSign.cpp
-        Utest/testSign1.cpp
-    )
-    foreach(file ${UNIT_TESTS})
-        get_filename_component(test ${file} NAME_WE)
-        add_executable(${test} ${file})
-        target_link_libraries(${test} core)
-        target_compile_options(${test} PRIVATE
-            ${COMMON_COMPILE_OPTIONS}
-        )
-        add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>)
-    endforeach()
-    add_executable(boost-unit-tests
-        Utest/test_geometry/testClassLineBoost.cpp
-        Utest/test_geometry/testClassObstacleBoost.cpp
-        Utest/test_geometry/testClassPointBoost.cpp
-        Utest/test_geometry/testClassRoomBoost.cpp
-        Utest/test_geometry/testClassWallBoost.cpp
-        Utest/test_geometry/testMain.cpp
-        Utest/test_geometry/testSubRoomBoost.cpp
-    )
-    target_link_libraries(boost-unit-tests
-        core
-        Boost::unit_test_framework
-    )
-    target_compile_options(boost-unit-tests PRIVATE
-        ${COMMON_COMPILE_OPTIONS}
-    )
-    add_test(NAME boost-unit-tests COMMAND $<TARGET_FILE:boost-unit-tests>)
+add_subdirectory(libshared)
+add_subdirectory(libcore)
+add_subdirectory(jpscore)
+add_subdirectory(jpsreport)
 
+################################################################################
+# Code formating
+################################################################################
+if(UNIX)
+    find_program(CLANG_FORMAT
+        NAMES
+            clang-format
+            clang-format-10
+    )
+    if(CLANG_FORMAT)
+        execute_process(
+            COMMAND ${CLANG_FORMAT} --version
+            OUTPUT_VARIABLE version_string
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(version_string MATCHES "^.*clang-format version .*")
+            string(REGEX REPLACE
+                "^.*clang-format version ([.0-9]+).*"
+                "\\1"
+                version
+                "${version_string}"
+            )
+            if(version MATCHES "^10.*")
+                message(STATUS "Found clang-format ${version}, add format-check and reformat targets")
+                set(folders jpscore jpsreport libcore)
+                add_custom_target(check-format
+                    COMMENT "Checking format with clang-format"
+                    COMMAND find ${folders}
+                        -name '*.cpp'
+                        -o -name '*.c'
+                        -o -name '*.h'
+                        -o -name '*.hpp' | xargs ${CLANG_FORMAT}
+                        -n -Werror --style=file
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                )
+                add_custom_target(reformat
+                    COMMENT "Reformatting code with clang-format"
+                    COMMAND find ${folders}
+                        -name '*.cpp'
+                        -o -name '*.c'
+                        -o -name '*.h'
+                        -o -name '*.hpp' | xargs ${CLANG_FORMAT}
+                        -i --style=file
+                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                )
+            endif()
+        endif()
+    endif()
 endif()
 
 ################################################################################
 # Integration tests
 ################################################################################
 if (BUILD_TESTING)
-    list(APPEND clean_geometry_tests
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile1.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile2.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile3.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile4.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile5.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile6.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile7.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile8.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile9-1.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile9-2.xml
-        ${CMAKE_SOURCE_DIR}/Utest/test_geometry/clean_geometry/inifile10.xml
-    )
-    foreach(file ${clean_geometry_tests})
-        get_filename_component(test ${file} NAME_WE)
-        add_test(
-            NAME geometry-${test}
-            COMMAND $<TARGET_FILE:jpscore> ${file}
-        )
-    endforeach()
-
-    file(GLOB_RECURSE test_py_files "${CMAKE_SOURCE_DIR}/Utest/*runtest_*.py")
-    foreach (file ${test_py_files})
-        get_filename_component(test ${file} NAME_WE)
-        add_test(
-            NAME ${test}
-            COMMAND ${PYTHON_EXECUTABLE} ${file}
-        )
-    endforeach ()
+  # Find libraries needed by python tests
+  find_python_library(numpy)
+  find_python_library(scipy)
+  find_python_library(pandas)
+  add_subdirectory(systemtest)
 endif (BUILD_TESTING)
-
-################################################################################
-# Install targets
-################################################################################
-install(TARGETS jpscore
-        DESTINATION bin
-        COMPONENT applications)
-if(WIN32)
-    set(CT_DATA_FILE_DIR "demos")
-    file(GLOB CT_FILES "${CMAKE_SOURCE_DIR}/${CT_DATA_FILE_DIR}/*/*")
-    install(FILES ${CT_FILES}
-            DESTINATION ${CT_DATA_FILE_DIR}
-            COMPONENT demos)
-endif()
 
 ################################################################################
 # Packaging with CPack
 ################################################################################
-IF(UNIX)
-    SET(CPACK_GENERATOR "DEB")
-    SET(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-    SET( CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://jupedsim.org")
-    SET(CPACK_DEBIAN_PACKAGE_SUGGESTS, "jpsvis, jpsreport, jpseditor")
-    SET(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-    SET(CPACK_DEBIAN_PACKAGE_SECTION "science")
-    SET(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+include(CPackUtilities)
+IF(UNIX AND NOT APPLE)
+  cpack_write_deb_config()
 endif()
 if(WIN32 AND NOT UNIX)
-    message(STATUS "Package generation - Windows")
-    set(CPACK_GENERATOR "NSIS")
-    find_program(NSIS_PATH nsis PATH_SUFFIXES nsis)
-    if(NSIS_PATH)
-        set(CPACK_GENERATOR "${CPACK_GENERATOR};NSIS")
-        message(STATUS "   + NSIS                                 YES ")
-    else(NSIS_PATH)
-        message(STATUS "   + NSIS                                 NO ")
-    endif(NSIS_PATH)
-
-    #CPACK_NSIS_URL_INFO_ABOUT
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
-    include(InstallRequiredSystemLibraries)
-
-    message(STATUS "System Dependencies: " ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
-    install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
-            DESTINATION sys
-            COMPONENT applications)
-elseif(APPLE)
-    set(DEFAULT_CPACK_GENERATOR "DragNDrop")
+  cpack_write_windows_config()
+endif()
+if(APPLE)
+  cpack_write_osx_config()
 endif()
 
-set(CPACK_COMPONENTS_ALL applications)
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/LICENSE")
-set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/forms/jpscore.ico")
-set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/forms/jpscore.ico")
-set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-set(CPACK_NSIS_MODIFY_PATH ON)
-set(CPACK_COMPONENTS_ALL applications demos)
-set(CPACK_COMPONENT_CTDATA_GROUP "Demos")
-set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "jpscore and dlls")
-set(CPACK_COMPONENT_GROUP_DATA_DESCRIPTION "demo files")
-set(CPACK_COMPONENT_DATA_FILES_DESCRIPTION "demo files to get started")
-SET(CPACK_PACKAGE_DESCRIPTION "Simulation core of JuPedSim")
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The simulation core of JuPedSim, a framework for simulation and analysis of pedestrian dynamics")
-SET(CPACK_PACKAGE_VENDOR "Forschungszentrum Juelich GmbH")
-SET(CPACK_PACKAGE_NAME "jpscore")
-SET(CPACK_PACKAGE_CONTACT "m.chraibi@fz-juelich.de")
-SET(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_MAJOR_VERSION}")
-SET(CPACK_PACKAGE_VERSION_MINOR "${PROJET_MINOR_VERSION}")
-SET(CPACK_PACKAGE_VERSION_PATCH "${PROJET_PATCH_VERSION}")
-SET(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${PROJET_VERSION}")
-SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${PROJET_VERSION}")
+cpack_write_config()
 
-INCLUDE(CPack)

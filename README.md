@@ -1,11 +1,13 @@
-# JPScore
+[![GitHub license](https://img.shields.io/badge/license-LGPL-blue.svg)](https://raw.githubusercontent.com/JuPedSim/jpscore/master/LICENSE)
 
-[![Build Status](https://travis-ci.org/JuPedSim/jpscore.svg?branch=develop)](https://travis-ci.org/JuPedSim/jpscore)
-[![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/JuPedSim/jpscore/master/LICENSE)
-[![DOI](https://zenodo.org/badge/36440436.svg)](https://zenodo.org/badge/latestdoi/36440436)
+[**documentation**](http://www.jupedsim.org) | [**jpscore**](http://www.jupedsim.org/jpscore_introduction.html) | [**jpsreport**](http://www.jupedsim.org/jpsreport_introduction.html)
 
-The core module for performing simulations. See the [online documentation](http://jupedsim.org/jpscore/)
+## Introduction
 
+This repository consists of two modules for simulating and anlyzing pedestrian dynamics. These are:
+
+1. `jpscore`: the core module computing the trajectories.
+2. `jpsreport`: a tool for analyzing the trajectories and measuring the density, flow and velocity.
 
 ## Building from source
 
@@ -21,7 +23,8 @@ and filesystem from boost.
 Required:
 * boost (>= 1.65)
 * libomp (if you want to use OpenMP with Apple LLVm or Clang on Linux)
-* cgal
+* spdlog (libspdlog-dev on Ubuntu, spdlog on brew)
+* fmtlib (libfmt-dev on Ubuntu, fmt on brew)
 * cmake (>= 3.1)
 
 Recommended:
@@ -52,15 +55,10 @@ cmake -DCMAKE_BUILD_TYPE=Debug -DUSE_OPENMP=OFF <path-to-cmakelists>
 
 The following configuration flags are available:
 
-##### USE_OPENMP defaults to ON
+##### USE_OPENMP defaults to ON (Disabled on Windows)
 Build `jpscore` with OpenMP support, generation will fail if OpenMP cannot be
 found.
-
-##### JPSFIRE defaults to OFF
-Build `jpscore` with jpsfire features
-
-##### AIROUTER defaults to OFF
-Build `jpscore` with an AI based router
+MSVC only support OpenMP 2.0 Standard and is therefor disabled on Windows.
 
 ##### BUILD_DOC defaults to OFF
 Build internal Doxygen based documentation
@@ -73,12 +71,15 @@ Build full system tests and add them to ctest
 
 ##### BUILD_WITH_ASAN defaults to OFF (Does not support Windows)
 Build an additional target `jpscore_asan` with address and undefined behavior
-sanitizer enabled. Note there is an approx. 2x slowdown when using 
+sanitizer enabled. Note there is an approx. 2x slowdown when using
 `jpscore_asan` over `jpscore`
+
+##### CODE_COVERAGE defaults to OFF (Does not support Windows)
+Build unittests with code coverage.
 
 ## Quick start
 
-See [installation and configuration](http://jupedsim.org/jpscore/2016-11-02-quickstart.html)
+See [Getting started with jupedsim](http://www.jupedsim.org/jpscore_introduction.html).
 
 ## Showcase and tutorials
 
@@ -89,7 +90,7 @@ To highlight some features of JuPedSim we have uploaded some videos on our [YouT
 
 We are heavily working on this project which means that:
 
-- It’s not done. We will be releasing new enhancements, bug fixes etc.
+- It's not done. We will be releasing new enhancements, bug fixes etc.
 - We love your support. If you find any errors or have suggestions, please write an issue in our [issue-tracker](https://github.com/JuPedSim/jpscore/issues). We will try hard to fix it.
 - Be patient. We are scientists and PhD/master students. Therefore, we primarily care about our research and theses.
 

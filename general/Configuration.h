@@ -20,428 +20,455 @@
 //
 #pragma once
 
-#include "randomnumbergenerator.h"
-#include "Macros.h"
-
 #include "JPSfire/B_walking_speed/WalkingSpeed.h"
 #include "JPSfire/C_toxicity_analysis/ToxicityAnalysis.h"
+#include "Macros.h"
+#include "direction/DirectionManager.h"
+#include "general/Filesystem.h"
 #include "math/OperationalModel.h"
 #include "pedestrian/AgentsParameters.h"
+#include "randomnumbergenerator.h"
 #include "routing/RoutingEngine.h"
 
-#ifdef _JPS_AS_A_SERVICE
-#include "hybrid/HybridSimulationManager.h"
-#endif
-
-#include <string>
 #include <cstdlib>
 #include <memory>
+#include <set>
+#include <string>
 
-class DirectionStrategy;
 
-//This class provides a data container for all configuration parameters.
-class Configuration {
-
+// This class provides a data container for all configuration parameters.
+class Configuration
+{
 public:
+    Configuration()
+    {
+        _walkingSpeed     = nullptr;
+        _ToxicityAnalysis = nullptr;
+        _solver           = 1;
+        _routingEngine    = std::shared_ptr<RoutingEngine>(new RoutingEngine());
+        _maxOpenMPThreads = 1;
+        _seed             = 0;
+        _fps              = 8;
+        _linkedCellSize   = 2.2;     // meter
+        _model            = nullptr; // std::shared_ptr<OperationalModel>(new OperationalModel());
+        _tMax             = 500;     // seconds
+        _dT               = 0.01;
+        _isPeriodic       = 0; // use only for Tordeux2015 with "trivial" geometries
+        // ----------- GCFM repulsive force ------
+        _nuPed  = 0.4;
+        _nuWall = 0.2;
+        // ----------- repulsive force ------
+        _aPed  = 1;    // Tordeux2015
+        _bPed  = 0.25; // Tordeux2015
+        _cPed  = 3;
+        _aWall = 1;
+        _bWall = 0.7;
+        _cWall = 3;
+        // ----------- Tordeux2015 model ------
+        _dWall = 0.1;
+        _dPed  = 0.1;
+        // ------- Interpolation GCFM - left side
+        _intPWidthPed  = 0.1;
+        _intPWidthWall = 0.1;
+        // ------- GCFM repulsive force
+        _maxFPed  = 3;
+        _maxFWall = 3;
+        // -------- Interpolation GCFM - right side
+        _distEffMaxPed  = 2;
+        _distEffMaxWall = 2;
+        // ----------------
 
-     Configuration()
-     {
-          _walkingSpeed = nullptr;
-          _ToxicityAnalysis = nullptr;
-          _solver = 1;
-          _routingEngine = std::shared_ptr<RoutingEngine>(new RoutingEngine());
-          _maxOpenMPThreads = 1;
-          _log = 0;
-          _port = -1;
-          _seed = 0;
-          _fps = 8;
-          _linkedCellSize = 2.2; // meter
-          _model = nullptr;//std::shared_ptr<OperationalModel>(new OperationalModel());
-          _tMax = 500; // seconds
-          _PRB = false;
-          _dT = 0.01;
-          _isPeriodic = 0; // use only for Tordeux2015 with "trivial" geometries
-          // ----------- GCFM repulsive force ------
-          _nuPed = 0.4;
-          _nuWall = 0.2;
-          // ----------- Gompertz repulsive force ------
-          _aPed = 1;    // Tordeux2015
-          _bPed = 0.25; // Tordeux2015
-          _cPed = 3;
-          _aWall = 1;
-          _bWall = 0.7;
-          _cWall = 3;
-          // ----------- Tordeux2015 model ------
-          _dWall = 0.1;
-          _dPed = 0.1;
-          // ------- Interpolation GCFM - left side
-          _intPWidthPed = 0.1;
-          _intPWidthWall = 0.1;
-          // ------- GCFM repulsive force
-          _maxFPed = 3;
-          _maxFWall = 3;
-          // -------- Interpolation GCFM - right side
-          _distEffMaxPed = 2;
-          _distEffMaxWall = 2;
-          // ----------------
+        _hostname                 = "localhost";
+        _trajectoriesFile         = "trajectories.txt";
+        _originalTrajectoriesFile = "trajectories.txt";
+        _errorLogFile             = "log.txt";
+        _projectFile              = "";
+        _geometryFile             = "";
+        _projectRootDir           = ".";
+        _showStatistics           = false;
+        _fileFormat               = FileFormat::TXT;
+        _agentsParameters         = std::map<int, std::shared_ptr<AgentsParameters>>();
+        // ---------- floorfield
+        _deltaH              = 0.0625;
+        _wall_avoid_distance = 0.4;
+        _use_wall_avoidance  = true;
 
-          _hostname = "localhost";
-          _trajectoriesFile = "trajectories.xml";
-          _originalTrajectoriesFile = "trajectories.xml";
-          _errorLogFile = "log.txt";
-          _projectFile = "";
-          _geometryFile = "";
-          _projectRootDir = ".";
-          _showStatistics = false;
-          _fileFormat = FORMAT_XML_PLAIN;
-          _agentsParameters = std::map<int, std::shared_ptr<AgentsParameters> >();
-          // ---------- floorfield
-          _deltaH = 0.0625;
-          _wall_avoid_distance = 0.4;
-          _use_wall_avoidance = true;
-          // ---------- gradientmodel
-          _slow_down_distance = 0.2;
+        // ff router quickest
+        _recalc_interval = 3;
 
-          //ff router quickest
-          _recalc_interval = 3;
+        // ff router
+        _has_specific_goals         = false;
+        _has_directional_escalators = false;
+        _write_VTK_files            = false;
+        _exit_strat                 = 9;
+        _write_VTK_files_direction  = false;
+        _dirManager                 = nullptr;
+        // for random numbers
+        _rdGenerator = RandomNumberGenerator();
+    }
 
-          //ff router
-          _has_specific_goals = false;
-          _has_directional_escalators = false;
-          _write_VTK_files = false;
-          _exit_strat = 9;
-          _write_VTK_files_direction = false;
-//          _dirSubLocal = nullptr;
-//          _dirLocal = nullptr;
-          _dirStrategy = nullptr;
-          //for random numbers
-          _rdGenerator=RandomNumberGenerator();
+    std::shared_ptr<WalkingSpeed> GetWalkingSpeed() { return _walkingSpeed; };
+    void SetWalkingSpeed(std::shared_ptr<WalkingSpeed> & w) { _walkingSpeed = w; };
 
+    std::shared_ptr<ToxicityAnalysis> GetToxicityAnalysis() { return _ToxicityAnalysis; };
+    void SetToxicityAnalysis(std::shared_ptr<ToxicityAnalysis> & t) { _ToxicityAnalysis = t; };
 
-     }
-     std::shared_ptr<WalkingSpeed> GetWalkingSpeed () {return _walkingSpeed; };
-     void SetWalkingSpeed(std::shared_ptr<WalkingSpeed> & w) {_walkingSpeed = w; };
+    int GetSolver() const { return _solver; };
 
-     std::shared_ptr<ToxicityAnalysis> GetToxicityAnalysis () {return _ToxicityAnalysis; };
-     void SetToxicityAnalysis(std::shared_ptr<ToxicityAnalysis> & t) {_ToxicityAnalysis = t; };
+    void SetSolver(int solver) { _solver = solver; };
 
-     int GetSolver() const { return _solver; };
+    std::shared_ptr<RoutingEngine> GetRoutingEngine() const { return _routingEngine; };
 
-     void SetSolver(int solver) { _solver = solver; };
+    // TODO: this is certainly not a config parameter but part of the model, we
+    // really should separate data and model [gl march '16]
+    void SetRoutingEngine(std::shared_ptr<RoutingEngine> routingEngine)
+    {
+        _routingEngine = routingEngine;
+    };
 
-     std::shared_ptr<RoutingEngine> GetRoutingEngine() const { return _routingEngine; };
+    int GetMaxOpenMPThreads() const { return _maxOpenMPThreads; };
 
-     //TODO: this is certainly not a config parameter but part of the model, we really should separate data and model [gl march '16]
-     void SetRoutingEngine(std::shared_ptr<RoutingEngine> routingEngine) { _routingEngine = routingEngine; };
+    void SetMaxOpenMPThreads(int maxOpenMPThreads) { _maxOpenMPThreads = maxOpenMPThreads; };
 
-     int GetMaxOpenMPThreads() const { return _maxOpenMPThreads; };
+    unsigned int GetSeed() const { return _seed; };
 
-     void SetMaxOpenMPThreads(int maxOpenMPThreads) { _maxOpenMPThreads = maxOpenMPThreads; };
+    void SetSeed(unsigned int seed) { _seed = seed; };
 
-     int GetLog() const { return _log; };
+    double GetFps() const { return _fps; };
 
-     void SetLog(int log) { _log = log; };
+    void SetFps(double fps) { _fps = fps; };
 
-     int GetPort() const { return _port; };
+    double GetLinkedCellSize() const { return _linkedCellSize; };
 
-     void SetPort(int port) { _port = port; };
+    void SetLinkedCellSize(double linkedCellSize) { _linkedCellSize = linkedCellSize; };
 
-     void SetPRB(bool prb) {_PRB = prb; };
-     bool print_prog_bar() const {return _PRB; };
+    std::shared_ptr<OperationalModel> GetModel() const { return _model; };
 
-     unsigned int GetSeed() const { return _seed; };
+    void SetModel(std::shared_ptr<OperationalModel> model) { _model = model; };
 
-     void SetSeed(unsigned int seed) { _seed = seed; };
+    double GetTmax() const { return _tMax; };
 
-     double GetFps() const { return _fps; };
+    void SetTmax(double tMax) { _tMax = tMax; };
 
-     void SetFps(double fps) { _fps = fps; };
+    double Getdt() const { return _dT; };
 
-     double GetLinkedCellSize() const { return _linkedCellSize; };
+    void Setdt(double dT) { _dT = dT; };
 
-     void SetLinkedCellSize(double linkedCellSize) { _linkedCellSize = linkedCellSize; };
+    int IsPeriodic() const { return _isPeriodic; };
 
-     std::shared_ptr<OperationalModel> GetModel() const { return _model; };
+    void SetIsPeriodic(int isPeriodic) { _isPeriodic = isPeriodic; };
 
-     void SetModel(std::shared_ptr<OperationalModel> model) { _model = model; };
+    double GetNuPed() const { return _nuPed; };
 
-     double GetTmax() const { return _tMax; };
+    void SetNuPed(double nuPed) { _nuPed = nuPed; };
 
-     void SetTmax(double tMax) { _tMax = tMax; };
+    double GetNuWall() const { return _nuWall; };
 
-     double Getdt() const { return _dT; };
+    void SetNuWall(double nuWall) { _nuWall = nuWall; };
 
-     void Setdt(double dT) { _dT = dT; };
+    double GetaPed() const { return _aPed; };
 
-     int IsPeriodic() const { return _isPeriodic; };
+    void SetaPed(double aPed) { _aPed = aPed; };
 
-     void SetIsPeriodic(int isPeriodic) { _isPeriodic = isPeriodic; };
+    double GetbPed() const { return _bPed; };
 
-     double GetNuPed() const { return _nuPed; };
+    void SetbPed(double bPed) { _bPed = bPed; };
 
-     void SetNuPed(double nuPed) { _nuPed = nuPed; };
+    double GetcPed() const { return _cPed; };
 
-     double GetNuWall() const { return _nuWall; };
+    void SetcPed(double cPed) { _cPed = cPed; };
 
-     void SetNuWall(double nuWall) { _nuWall = nuWall; };
+    double GetaWall() const { return _aWall; };
 
-     double GetaPed() const { return _aPed; };
+    void SetaWall(double aWall) { _aWall = aWall; };
 
-     void SetaPed(double aPed) { _aPed = aPed; };
+    double GetbWall() const { return _bWall; };
 
-     double GetbPed() const { return _bPed; };
+    void SetbWall(double bWall) { _bWall = bWall; };
 
-     void SetbPed(double bPed) { _bPed = bPed; };
+    double GetcWall() const { return _cWall; };
 
-     double GetcPed() const { return _cPed; };
+    void SetcWall(double cWall) { _cWall = cWall; };
 
-     void SetcPed(double cPed) { _cPed = cPed; };
+    double GetDWall() const { return _dWall; };
 
-     double GetaWall() const { return _aWall; };
+    void SetDWall(double dWall) { _dWall = dWall; };
 
-     void SetaWall(double aWall) { _aWall = aWall; };
+    double GetDPed() const { return _dPed; };
 
-     double GetbWall() const { return _bWall; };
+    void SetDPed(double dPed) { _dPed = dPed; };
 
-     void SetbWall(double bWall) { _bWall = bWall; };
+    double GetIntPWidthPed() const { return _intPWidthPed; };
 
-     double GetcWall() const { return _cWall; };
+    void SetIntPWidthPed(double intPWidthPed) { _intPWidthPed = intPWidthPed; };
 
-     void SetcWall(double cWall) { _cWall = cWall; };
+    double GetIntPWidthWall() const { return _intPWidthWall; };
 
-     double GetDWall() const { return _dWall; };
+    void SetIntPWidthWall(double intPWidthWall) { _intPWidthWall = intPWidthWall; };
 
-     void SetDWall(double dWall) { _dWall = dWall; };
+    double GetMaxFPed() const { return _maxFPed; };
 
-     double GetDPed() const { return _dPed; };
+    void SetMaxFPed(double maxFPed) { _maxFPed = maxFPed; };
 
-     void SetDPed(double dPed) { _dPed = dPed; };
+    double GetMaxFWall() const { return _maxFWall; };
 
-     double GetIntPWidthPed() const { return _intPWidthPed; };
+    void SetMaxFWall(double maxFWall) { _maxFWall = maxFWall; };
 
-     void SetIntPWidthPed(double intPWidthPed) { _intPWidthPed = intPWidthPed; };
+    double GetDistEffMaxPed() const { return _distEffMaxPed; };
 
-     double GetIntPWidthWall() const { return _intPWidthWall; };
+    void SetDistEffMaxPed(double distEffMaxPed) { _distEffMaxPed = distEffMaxPed; };
 
-     void SetIntPWidthWall(double intPWidthWall) { _intPWidthWall = intPWidthWall; };
+    double GetDistEffMaxWall() const { return _distEffMaxWall; };
 
-     double GetMaxFPed() const { return _maxFPed; };
+    void SetDistEffMaxWall(double distEffMaxWall) { _distEffMaxWall = distEffMaxWall; };
 
-     void SetMaxFPed(double maxFPed) { _maxFPed = maxFPed; };
+    double get_deltaH() const { return _deltaH; }
 
-     double GetMaxFWall() const { return _maxFWall; };
+    void set_deltaH(double deltaH) { _deltaH = deltaH; }
+    
+    double get_xmin() const { return _xmin; }
 
-     void SetMaxFWall(double maxFWall) { _maxFWall = maxFWall; };
+    void set_xmin(double xmin){ _xmin = xmin; }
+    
+    double get_xmax() const { return _xmax; }
 
-     double GetDistEffMaxPed() const { return _distEffMaxPed; };
+    void set_xmax(double xmax) { _xmax = xmax; }
+    
+    double get_ymin() const { return _ymin; }
 
-     void SetDistEffMaxPed(double distEffMaxPed) { _distEffMaxPed = distEffMaxPed; };
+    void set_ymin(double ymin) { _ymin = ymin; }
+    
+    double get_ymax() const { return _ymax; }
 
-     double GetDistEffMaxWall() const { return _distEffMaxWall; };
+    void set_ymax(double ymax) { _ymax = ymax; }
 
-     void SetDistEffMaxWall(double distEffMaxWall) { _distEffMaxWall = distEffMaxWall; };
+    double get_wall_avoid_distance() const { return _wall_avoid_distance; }
 
-     double get_deltaH() const { return _deltaH; }
+    void set_wall_avoid_distance(double wall_avoid_distance)
+    {
+        _wall_avoid_distance = wall_avoid_distance;
+    }
 
-     void set_deltaH(double deltaH) { _deltaH = deltaH; }
+    bool get_use_wall_avoidance() const { return _use_wall_avoidance; }
 
-     double get_wall_avoid_distance() const { return _wall_avoid_distance; }
+    void set_use_wall_avoidance(bool use_wall_avoidance)
+    {
+        _use_wall_avoidance = use_wall_avoidance;
+    }
 
-     void set_wall_avoid_distance(double wall_avoid_distance) { _wall_avoid_distance = wall_avoid_distance; }
+    double get_recalc_interval() const { return _recalc_interval; }
 
-     bool get_use_wall_avoidance() const { return _use_wall_avoidance; }
+    void set_recalc_interval(double recalc_interval) { _recalc_interval = recalc_interval; }
 
-     void set_use_wall_avoidance(bool use_wall_avoidance) { _use_wall_avoidance = use_wall_avoidance; }
+    bool get_has_specific_goals() const { return _has_specific_goals; }
 
-     double get_slow_down_distance() const { return _slow_down_distance; }
+    void set_has_specific_goals(bool has_specific_goals)
+    {
+        _has_specific_goals = has_specific_goals;
+    }
 
-     void set_slow_down_distance(double slow_down_distance) { _slow_down_distance = slow_down_distance; }
+    bool get_has_directional_escalators() const { return _has_directional_escalators; }
+    void set_has_directional_escalators(bool has_directional_esc)
+    {
+        _has_directional_escalators = has_directional_esc;
+    }
 
-     double get_recalc_interval() const { return _recalc_interval; }
+    void set_write_VTK_files(bool write_VTK_files) { _write_VTK_files = write_VTK_files; }
 
-     void set_recalc_interval(double recalc_interval) { _recalc_interval = recalc_interval; }
+    bool get_write_VTK_files() const { return _write_VTK_files; }
 
-     bool get_has_specific_goals() const {return _has_specific_goals;}
+    void set_exit_strat(int e_strat) { _exit_strat = e_strat; }
 
-     void set_has_specific_goals(bool has_specific_goals) { _has_specific_goals = has_specific_goals;}
+    int get_exit_strat() const { return _exit_strat; }
 
-     bool get_has_directional_escalators() const { return _has_directional_escalators;}
-     void set_has_directional_escalators(bool has_directional_esc) {_has_directional_escalators = has_directional_esc;}
+    void SetDirectionManager(std::shared_ptr<DirectionManager> dir) { _dirManager = dir; }
+    std::shared_ptr<DirectionManager> GetDirectionManager() { return _dirManager; }
 
-     void set_write_VTK_files(bool write_VTK_files) {_write_VTK_files = write_VTK_files;}
+    const std::string & GetHostname() const { return _hostname; };
 
-     bool get_write_VTK_files() const {return _write_VTK_files;}
+    void set_write_VTK_files_direction(bool write_VTK_files_direction)
+    {
+        _write_VTK_files_direction = write_VTK_files_direction;
+    }
 
-     void set_exit_strat(int e_strat) {_exit_strat = e_strat;}
+    bool get_write_VTK_files_direction() const { return _write_VTK_files_direction; }
 
-     int get_exit_strat() const {return _exit_strat;}
+    void SetHostname(std::string hostname) { _hostname = hostname; };
 
-     void set_dirStrategy(DirectionStrategy* dir){_dirStrategy = dir;}
-     DirectionStrategy* get_dirStrategy(){return _dirStrategy;}
-//     void set_dirSubLocal(DirectionSubLocalFloorfield* dir) {_dirSubLocal = dir;}
-//
-//    void set_dirLocal(DirectionLocalFloorfield* dir) {_dirLocal = dir;}
-//
-//    void set_dirSubLocalTrips(DirectionSubLocalFloorfieldTrips* dir) {_dirSubLocalTrips = dir;}
-//
-//    void set_dirSubLocalTripsVoronoi(DirectionSubLocalFloorfieldTripsVoronoi* dir) {_dirSubLocalTripsVoronoi = dir;}
+    const fs::path & GetTrajectoriesFile() const { return _trajectoriesFile; };
 
-//    DirectionSubLocalFloorfield* get_dirSubLocal() const {return _dirSubLocal;}
-//     DirectionLocalFloorfield* get_dirLocal() const {return _dirLocal;}
-//
-//    DirectionSubLocalFloorfieldTrips* get_dirSubLocalTrips() const {return _dirSubLocalTrips;}
-//    DirectionSubLocalFloorfieldTripsVoronoi* get_dirSubLocalTripsVoronoi() const {return _dirSubLocalTripsVoronoi;}
+    void SetTrajectoriesFile(const fs::path & trajectoriesFile)
+    {
+        _trajectoriesFile = trajectoriesFile;
+    };
 
-    const std::string& GetHostname() const { return _hostname; };
+    const fs::path & GetOutputPath() const { return _outputPath; };
 
-    void set_write_VTK_files_direction(bool write_VTK_files_direction) {_write_VTK_files_direction = write_VTK_files_direction;}
+    void SetOutputPath(const fs::path & outputDir) { _outputPath = outputDir; };
 
-    bool get_write_VTK_files_direction() const {return _write_VTK_files_direction;}
+    void ConfigureOutputPath()
+    {
+        // Set default name if none was set
+        if(_outputPath.empty()) {
+            _outputPath = "results";
+        }
 
-     void SetHostname(std::string hostname) { _hostname = hostname; };
+        // make absolute path
+        if(_outputPath.is_relative()) {
+            _outputPath = fs::absolute(_outputPath);
+        }
 
-     const std::string& GetTrajectoriesFile() const { return _trajectoriesFile; };
+        // checks if directory exists, otherwise creates it.
+        fs::create_directories(_outputPath);
+    }
 
-     void SetTrajectoriesFile(std::string trajectoriesFile) { _trajectoriesFile = trajectoriesFile; };
+    const fs::path & GetOriginalTrajectoriesFile() const { return _originalTrajectoriesFile; };
 
-     const std::string& GetOriginalTrajectoriesFile() const { return _originalTrajectoriesFile; };
+    void SetOriginalTrajectoriesFile(const fs::path & trajectoriesFile)
+    {
+        _originalTrajectoriesFile = trajectoriesFile;
+    };
 
-     void SetOriginalTrajectoriesFile(std::string trajectoriesFile) { _originalTrajectoriesFile = trajectoriesFile; };
+    const fs::path & GetErrorLogFile() const { return _errorLogFile; };
 
-     const std::string& GetErrorLogFile() const { return _errorLogFile; };
+    void SetErrorLogFile(const fs::path & errorLogFile) { _errorLogFile = errorLogFile; };
 
-     void SetErrorLogFile(std::string errorLogFile) { _errorLogFile = errorLogFile; };
+    const fs::path & GetProjectFile() const { return _projectFile; };
 
-     const std::string& GetProjectFile() const { return _projectFile; };
+    void SetProjectFile(const fs::path & projectFile) { _projectFile = projectFile; };
 
-     void SetProjectFile(std::string projectFile) { _projectFile = projectFile; };
+    const fs::path & GetGeometryFile() const { return _geometryFile; };
 
-     const std::string& GetGeometryFile() const { return _geometryFile; };
+    void SetGeometryFile(const fs::path & geometryFile) { _geometryFile = geometryFile; };
 
-     void SetGeometryFile(std::string geometryFile) { _geometryFile = geometryFile; };
+    const fs::path & GetTransitionFile() const { return _transitionFile; }
 
-     const std::string& GetProjectRootDir() const { return _projectRootDir; };
+    void SetTransitionFile(const fs::path & transitionFile) { _transitionFile = transitionFile; }
 
-     void SetProjectRootDir(std::string projectRootDir) { _projectRootDir = projectRootDir; };
+    const fs::path & GetGoalFile() const { return _goalFile; }
 
-     bool ShowStatistics() const { return _showStatistics; };
+    void SetGoalFile(const fs::path & goalFile) { _goalFile = goalFile; }
 
-     void SetShowStatistics(bool showStatistics) { _showStatistics = showStatistics; };
+    const fs::path & GetSourceFile() const { return _sourceFile; }
 
-     const FileFormat& GetFileFormat() const { return _fileFormat; };
+    void SetSourceFile(const fs::path & sourceFile) { _sourceFile = sourceFile; }
 
-     void SetFileFormat(FileFormat fileFormat) { _fileFormat = fileFormat; };
+    const fs::path & GetTrafficContraintFile() const { return _trafficContraintFile; }
 
-     const std::map<int, std::shared_ptr<AgentsParameters> >& GetAgentsParameters() const { return _agentsParameters; };
+    void SetTrafficContraintFile(const fs::path & trafficContraintFile)
+    {
+        _trafficContraintFile = trafficContraintFile;
+    }
 
-     void AddAgentsParameters(std::shared_ptr<AgentsParameters> agentsParameters,
-               int id) { _agentsParameters[id] = agentsParameters; };
+    const fs::path & GetEventFile() const { return _eventFile; }
 
-    RandomNumberGenerator* GetRandomNumberGenerator() const {return &_rdGenerator;};
+    void SetEventFile(const fs::path & eventFile) { _eventFile = eventFile; }
 
-#ifdef _JPS_AS_A_SERVICE
+    const fs::path & GetScheduleFile() const { return _scheduleFile; }
 
-     const bool GetRunAsService() const { return _runAsService; };
+    void SetScheduleFile(const fs::path & scheduleFile) { _scheduleFile = scheduleFile; }
 
-     void SetRunAsService(bool runAsService) { _runAsService = runAsService; };
+    const fs::path & GetProjectRootDir() const { return _projectRootDir; };
 
-     const int GetServicePort() const { return _servicePort; };
+    void SetProjectRootDir(const fs::path & projectRootDir) { _projectRootDir = projectRootDir; };
 
-     void SetServicePort(int servicePort) { _servicePort = servicePort; };
+    bool ShowStatistics() const { return _showStatistics; };
 
-     std::shared_ptr<HybridSimulationManager> GetHybridSimulationManager() { return _hybridSimulationManager; };
+    void SetShowStatistics(bool showStatistics) { _showStatistics = showStatistics; };
 
-     void SetHybridSimulationManager(std::shared_ptr<HybridSimulationManager> hybridSimulationManager)
-     {
-          _hybridSimulationManager = hybridSimulationManager;
-     };
+    const FileFormat & GetFileFormat() const { return _fileFormat; };
 
-     const hybridsim::Scenario* GetScenario() const { return _scenario; };
+    void SetFileFormat(FileFormat fileFormat) { _fileFormat = fileFormat; };
 
-     void SetScenario(const hybridsim::Scenario* scenario) { _scenario = scenario; };
+    const std::map<int, std::shared_ptr<AgentsParameters>> & GetAgentsParameters() const
+    {
+        return _agentsParameters;
+    };
 
-     const bool GetDumpScenario() const { return _dumpScenario; };
+    void AddAgentsParameters(std::shared_ptr<AgentsParameters> agentsParameters, int id)
+    {
+        _agentsParameters[id] = agentsParameters;
+    };
 
-     void SetDumpScenario(bool dumpScenario) { _dumpScenario = dumpScenario; };
-#endif
+    RandomNumberGenerator * GetRandomNumberGenerator() const { return &_rdGenerator; };
+
+    void AddOptionalOutputOption(OptionalOutput option) { _optionalOutput.insert(option); };
+
+    std::set<OptionalOutput> GetOptionalOutputOptions() { return _optionalOutput; };
 
 private:
-     std::shared_ptr<WalkingSpeed> _walkingSpeed;
-     std::shared_ptr<ToxicityAnalysis> _ToxicityAnalysis;
-     int _solver;
-     std::shared_ptr<RoutingEngine> _routingEngine;
-     int _maxOpenMPThreads;
-     int _log;
-     int _port;
-     unsigned int _seed;
-     double _fps;
-     double _linkedCellSize;
-     std::shared_ptr<OperationalModel> _model;
-     double _tMax;
-     bool _PRB;
-     double _dT;
-     int _isPeriodic;
-     double _nuPed;
-     double _nuWall;
-     double _aPed;
-     double _bPed;
-     double _cPed;
-     double _aWall;
-     double _bWall;
-     double _cWall;
-     double _dWall;
-     double _dPed;
-     double _intPWidthPed;
-     double _intPWidthWall;
-     double _maxFPed;
-     double _maxFWall;
-     double _distEffMaxPed;
-     double _distEffMaxWall;
-     //floorfield
-     double _deltaH;
-     double _wall_avoid_distance;
-     bool _use_wall_avoidance;
-     //gradientmodel
-     double _slow_down_distance;
+    std::shared_ptr<WalkingSpeed> _walkingSpeed;
+    std::shared_ptr<ToxicityAnalysis> _ToxicityAnalysis;
+    int _solver;
+    std::shared_ptr<RoutingEngine> _routingEngine;
+    int _maxOpenMPThreads;
+    unsigned int _seed;
+    double _fps;
+    double _linkedCellSize;
+    std::shared_ptr<OperationalModel> _model;
+    double _tMax;
+    double _dT;
+    int _isPeriodic;
+    double _nuPed;
+    double _nuWall;
+    double _aPed;
+    double _bPed;
+    double _cPed;
+    double _aWall;
+    double _bWall;
+    double _cWall;
+    double _xmin;
+    double _ymin;
+    double _xmax;
+    double _ymax;
+    double _dWall;
+    double _dPed;
+    double _intPWidthPed;
+    double _intPWidthWall;
+    double _maxFPed;
+    double _maxFWall;
+    double _distEffMaxPed;
+    double _distEffMaxWall;
+    // floorfield
+    double _deltaH;
+    double _wall_avoid_distance;
+    bool _use_wall_avoidance;
 
-     //ff router quickest
-     double _recalc_interval;
+    // ff router quickest
+    double _recalc_interval;
 
-     //ff router
-     bool _has_specific_goals;
-     bool _has_directional_escalators;
-     bool _write_VTK_files;
-     bool _write_VTK_files_direction;
+    // ff router
+    bool _has_specific_goals;
+    bool _has_directional_escalators;
+    bool _write_VTK_files;
+    bool _write_VTK_files_direction;
 
-     int _exit_strat;
-
-//     DirectionSubLocalFloorfield* _dirSubLocal;
-//     DirectionLocalFloorfield* _dirLocal;
-//     DirectionSubLocalFloorfieldTrips* _dirSubLocalTrips;
-//     DirectionSubLocalFloorfieldTripsVoronoi* _dirSubLocalTripsVoronoi;
-
-     DirectionStrategy* _dirStrategy;
-
-     std::string _hostname;
-     std::string _trajectoriesFile;
-     std::string _originalTrajectoriesFile;
-     std::string _errorLogFile;
-     std::string _projectFile;
-     std::string _geometryFile;
-     std::string _projectRootDir;
-     bool _showStatistics;
-
-     mutable RandomNumberGenerator _rdGenerator;
-
-     FileFormat _fileFormat;
-     std::map<int, std::shared_ptr<AgentsParameters> > _agentsParameters;
-#ifdef _JPS_AS_A_SERVICE
-     bool _runAsService;
-     int _servicePort;
-     std::shared_ptr<HybridSimulationManager> _hybridSimulationManager;
-     const hybridsim::Scenario* _scenario;
-     bool _dumpScenario;
-#endif
+    int _exit_strat;
+    
 
 
+    std::shared_ptr<DirectionManager> _dirManager;
+
+    std::string _hostname;
+    fs::path _trajectoriesFile;
+    fs::path _originalTrajectoriesFile;
+    fs::path _errorLogFile;
+    fs::path _projectFile;
+    fs::path _geometryFile;
+    fs::path _transitionFile;
+    fs::path _goalFile;
+    fs::path _sourceFile;
+    fs::path _trafficContraintFile;
+    fs::path _eventFile;
+    fs::path _scheduleFile;
+    fs::path _projectRootDir;
+    fs::path _outputPath;
+    bool _showStatistics;
+
+    mutable RandomNumberGenerator _rdGenerator;
+
+    FileFormat _fileFormat;
+    std::map<int, std::shared_ptr<AgentsParameters>> _agentsParameters;
+
+    std::set<OptionalOutput> _optionalOutput;
 };

@@ -55,6 +55,8 @@ VelocityModel::VelocityModel(
     // Force_rep_WALL Parameter
     _aWall = awall;
     _DWall = Dwall;
+    _esigma = esigma;
+    _emu = emu;
 }
 
 
@@ -197,6 +199,25 @@ void VelocityModel::ComputeNextTimeStep(
 
             // calculate new direction ei according to (6)
             Point direction = e0(ped, room) + repPed + repWall;
+            
+            std::random_device rd;
+            std::mt19937 eng(rd());
+            //std::mt19937 mt(ped->GetBuilding()->GetConfig()->GetSeed());
+            //std::uniform_real_distribution<double> dist(0, 1.0);
+            //std::normal_distribution<double> dist(_emu,_esigma); //this could be angle
+            std::normal_distribution<double> dist(_emu,_esigma); //this could be angle
+
+            double random_x = dist(eng);
+            //std::cout << random_x << std::endl;
+            //Log->Write("%f", random_x);
+            double random_y = dist(eng);
+            //std::cout << random_y << std::endl;
+            Point noise = Point(random_x,random_y);
+            direction = direction + noise;
+            direction = direction.Normalized();
+
+            
+            
             for(int i = 0; i < size; i++) {
                 Pedestrian * ped1 = neighbours[i];
                 // calculate spacing

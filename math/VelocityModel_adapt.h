@@ -68,9 +68,14 @@ private:
      /// Modellparameter
      double _aPed;
      double _DPed;
-
+    
      double _aWall;
      double _DWall;
+    
+    double _esigma;
+    double _emu;
+    
+
 
      /**
       * Optimal velocity function \f$ V(spacing) =\min{v_0, \max{0, (s-l)/T}}  \f$
@@ -136,7 +141,7 @@ private:
 public:
 
      VelocityModel_adapt(std::shared_ptr<DirectionStrategy> dir, double aped, double Dped,
-                   double awall, double Dwall);
+                   double awall, double Dwall, double esigme, double emu);
      virtual ~VelocityModel_adapt(void);
 
 

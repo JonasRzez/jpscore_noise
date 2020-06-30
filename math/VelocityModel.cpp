@@ -48,6 +48,8 @@ VelocityModel::VelocityModel(std::shared_ptr<DirectionStrategy> dir, double aped
      // Force_rep_WALL Parameter
      _aWall = awall;
      _DWall = Dwall;
+    
+  
 }
 
 

@@ -140,6 +140,8 @@ set(header_files
     src/math/Mathematics.h
     src/math/OperationalModel.h
     src/math/VelocityModel.h
+    src/math/VelocityModel_adapt.h
+
     src/neighborhood/NeighborhoodSearch.h
     src/neighborhood/Grid2D.h
     src/pedestrian/AgentsParameters.h

@@ -241,7 +241,7 @@ void VelocityModel_adapt::ComputeNextTimeStep(double current, double deltaT, Bui
                 // calculate new direction ei according to (6)
                 //Point direction = e0(ped, room) + repPed + repWall;
                 Point direction = e0(ped, room);
-                double yAbove = 0.7; //cutting line
+
 
                 Point position = ped->GetPos();
                /*

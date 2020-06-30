@@ -51,7 +51,7 @@ Simulation::Simulation(Configuration* args)
         :_config(args)
 {
      _countTraj = 0;
-     _maxFileSize = 10; // MB
+     _maxFileSize = 10000; // MB
     _nPeds = 0;
     _seed = 8091983;
     _deltaT = 0;
@@ -411,16 +411,25 @@ void Simulation::UpdateRoutesAndLocations()
      }
      else
 #endif
-    {
-
-        // remove the pedestrians that have left the building
-        for (auto p : pedsToRemove){
-            UpdateFlowAtDoors(*p);
-            _building->DeletePedestrian(p);
-        }
-        pedsToRemove.clear();
-    }
-
+      {
+          if(_periodic){
+                std::vector<Pedestrian*> pedsToAdd(pedsToRemove.begin(), pedsToRemove.end());
+                for (auto ped : pedsToAdd){
+                    double x = (_config->get_xmax() - _config->get_xmin()) * ( (double)rand() / (double)RAND_MAX ) + _config->get_xmin();
+                    double y = (_config->get_ymax() - _config->get_ymin()) * ( (double)rand() / (double)RAND_MAX ) + _config->get_ymin();
+                    ped->SetPos({x, y});
+                }
+            AgentsQueueIn::Add(pedsToAdd);
+              pedsToRemove.clear();}
+          else {
+              for (auto p : pedsToRemove){
+                      UpdateFlowAtDoors(*p);
+                      _building->DeletePedestrian(p);
+                  }
+                  pedsToRemove.clear();
+              }
+          }
+        
     //    temporary fix for the safest path router
     //    if (dynamic_cast<SafestPathRouter*>(_routingEngine->GetRouter(1)))
     //    {
@@ -550,6 +559,8 @@ double Simulation::RunBody(double maxSimTime)
     std::string description = "Evacutation ";
     ProgressBar bar(_nPeds, description);
     int initialnPeds = _nPeds;
+
+
     // main program loop
     while ((_nPeds || (!_agentSrcManager.IsCompleted()&& _gotSources) ) && t<maxSimTime) {
         t = 0+(frameNr-1)*_deltaT;

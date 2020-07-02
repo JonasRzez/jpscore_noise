@@ -180,7 +180,7 @@ void TrajectoriesTXT::WriteHeader(long nPeds, double fps, Building * building, i
         header.append(_optionalOutputInfo[option]);
     }
 
-    header.append("\n#ID\tFR\tX\tY\tZ\tA\tB\tANGLE\tCOLOR\tspeed_nn");
+    header.append("\n#ID\tFR\tX\tY\tZ\tA\tB\tANGLE\tCOLOR\tspeed_nn\tANGLE_int_nn");
     // Add header for optional output options
     for(const auto & option : _optionalOutputOptions) {
         header.append(_optionalOutputHeader[option]);
@@ -203,9 +203,10 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
         double phi     = atan2(ped->GetEllipse().GetSinPhi(), ped->GetEllipse().GetCosPhi());
         double RAD2DEG = 180.0 / M_PI;
         double speed_nn = ped->_speed_nn;
+        double angle_nn_int = ped->_angle_nn_int;
         unsigned int precision = GetPrecision();
         std::string frame      = fmt::format(
-            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:0.2f}\t{:0.2f}\t{:d}\t{:0.2f}",
+            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:0.2f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.2f}",
             ped->GetID(),
             frameNr,
             x,
@@ -218,7 +219,8 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
             b,
             phi * RAD2DEG,
             color,
-            speed_nn);
+            speed_nn,
+            angle_nn_int);
         for(const auto & option : _optionalOutputOptions) {
             frame.append(_optionalOutput[option](ped));
         }

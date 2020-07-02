@@ -200,11 +200,11 @@ void VelocityModel::ComputeNextTimeStep(
                 }
             } // for i
             //repulsive forces to walls and closed transitions that are not my target
-            Point repWall = ForceRepRoom(allPeds[p], subroom);
+            //Point repWall = ForceRepRoom(allPeds[p], subroom);
 
             // calculate new direction ei according to (6)
             Point direction = e0(ped, room); //+ repPed + repWall;
-            ped->direction_nn = direction
+            ped->direction_nn = direction;
 
             std::random_device rd;
             std::mt19937 eng(rd());
@@ -220,6 +220,7 @@ void VelocityModel::ComputeNextTimeStep(
             //std::cout << random_y << std::endl;
             Point noise = Point(random_x,random_y);
             //std::cout <<"nonoise " << direction._x << " " << direction._y << std::endl;
+            Point direction_nonoise = direction;
 
             direction = direction + noise;
             direction = direction.Normalized();
@@ -269,7 +270,7 @@ void VelocityModel::ComputeNextTimeStep(
             //============================================================
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
             ped->_speed_nn = OptimalSpeed(ped, spacing_nonoise);
-            
+            ped->_angle_nn_int = spacings_nonoise[0].second;
             result_acc.push_back(speed);
 
 
@@ -397,10 +398,13 @@ my_pair
 VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int periodic) const
 {
     Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
+    Point dir_nn = ped1->direction_nn;
+    Point dir_nn_j = ped2->direction_nn;
+    double dir_angle = acos(dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized())) * 180.0/M_PI;
     if(periodic) {
         double x   = ped1->GetPos()._x;
         double x_j = ped2->GetPos()._x;
-
+        
         if((xRight - x) + (x_j - xLeft) <= cutoff) {
             distp12._x = distp12._x + xRight - xLeft;
         }
@@ -426,9 +430,9 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
 
     if((condition1 >= 0) && (condition2 <= l / Distance))
         // return a pair <dist, condition1>. Then take the smallest dist. In case of equality the biggest condition1
-        return my_pair(distp12.Norm(), ped2->GetID());
+        return my_pair(distp12.Norm(), dir_angle);
     else
-        return my_pair(FLT_MAX, ped2->GetID());
+        return my_pair(FLT_MAX, -1);
 }
 Point VelocityModel::ForceRepPed(Pedestrian * ped1, Pedestrian * ped2, int periodic) const
 {

@@ -207,8 +207,8 @@ public:
     double GetMass() const;
     double GetTau() const;
     double _speed_nn;
-    Point *direction_nn;
-    Point *drection_nn_int;
+    Point direction_nn;
+    double _angle_nn_int;
     const JEllipse & GetEllipse() const;
     int GetExitIndex() const;
     Router * GetRouter() const;

@@ -38,8 +38,7 @@ double xRight_adapt = 26.0;
 double xLeft_adapt = 0.0;
 double cutoff_adapt = 2.0;
 
-VelocityModel_adapt::VelocityModel_adapt(std::shared_ptr<DirectionStrategy> dir, double aped, double Dped,
-                             double awall, double Dwall, double esigma, double emu)
+VelocityModel_adapt::VelocityModel_adapt(std::shared_ptr<DirectionStrategy> dir, double aped, double Dped,double awall, double Dwall, double esigma, double emu)
 {
      _direction = dir;
      // Force_rep_PED Parameter
@@ -52,7 +51,6 @@ VelocityModel_adapt::VelocityModel_adapt(std::shared_ptr<DirectionStrategy> dir,
     _esigma = esigma;
     _emu = emu;
 }
-
 
 VelocityModel_adapt::~VelocityModel_adapt()
 {

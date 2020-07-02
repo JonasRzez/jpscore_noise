@@ -64,6 +64,7 @@ private:
     double _tau;       // Reaction time: 0.5
     double _T;         // OV function
     double _deltaT;    // step size
+    
     JEllipse _ellipse; // the shape of this pedestrian
     Point _V0;         //vector V0
 
@@ -150,7 +151,6 @@ private:
 public:
     // public member
     int _ticksInThisRoom;
-
     // constructors
     Pedestrian();
     explicit Pedestrian(const StartDistribution & agentsParameters, Building & building);
@@ -206,6 +206,9 @@ public:
     int GetSubRoomUID() const;
     double GetMass() const;
     double GetTau() const;
+    double _speed_nn;
+    Point *direction_nn;
+    Point *drection_nn_int;
     const JEllipse & GetEllipse() const;
     int GetExitIndex() const;
     Router * GetRouter() const;

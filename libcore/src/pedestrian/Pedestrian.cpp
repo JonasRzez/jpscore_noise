@@ -184,6 +184,7 @@ Pedestrian::Pedestrian(const StartDistribution & agentsParameters, Building & bu
     _ToxicityAnalysis = nullptr;
     _WalkingSpeed     = nullptr;
     _waitingPos = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    _speed_nn = 0.;
 }
 
 

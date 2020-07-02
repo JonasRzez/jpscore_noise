@@ -329,7 +329,7 @@ void Simulation::PrintStatistics(double simTime)
 void Simulation::RunHeader(long nPed)
 {
     // Copy input files used for simulation to output folder for reproducibility
-    CopyInputFilesToOutPath();
+    //CopyInputFilesToOutPath();
     UpdateOutputFiles();
 
     // writing the header

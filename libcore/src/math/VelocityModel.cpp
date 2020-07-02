@@ -40,21 +40,22 @@
 double xRight = 26.0;
 double xLeft  = 0.0;
 double cutoff = 2.0;
-
-VelocityModel::VelocityModel(
-    std::shared_ptr<DirectionManager> dir,
-    double aped,
-    double Dped,
-    double awall,
-    double Dwall)
+VelocityModel::VelocityModel( std::shared_ptr<DirectionManager> dir,
+       double aped,
+       double Dped,
+       double awall,
+       double Dwall,
+       double esigma,
+       double emu)
 {
-    _direction = dir;
-    // Force_rep_PED Parameter
-    _aPed = aped;
-    _DPed = Dped;
-    // Force_rep_WALL Parameter
-    _aWall = awall;
-    _DWall = Dwall;
+     _direction = dir;
+     // Force_rep_PED Parameter
+     _aPed = aped;
+     _DPed = Dped;
+     // Force_rep_WALL Parameter
+     _aWall = awall;
+     _DWall = Dwall;
+    
     _esigma = esigma;
     _emu = emu;
 }
@@ -150,8 +151,12 @@ void VelocityModel::ComputeNextTimeStep(
         std::vector<Point> result_acc = std::vector<Point>();
         result_acc.reserve(nSize);
         std::vector<my_pair> spacings = std::vector<my_pair>();
+        std::vector<my_pair> spacings_nonoise = std::vector<my_pair>();
+
         spacings.reserve(nSize);             // larger than needed
         spacings.push_back(my_pair(100, 1)); // in case there are no neighbors
+        spacings_nonoise.reserve(nSize);             // larger than needed
+        spacings_nonoise.push_back(my_pair(100, 1)); // in case there are no neighbors
         const int threadID = omp_get_thread_num();
 
         int start = threadID * partSize;
@@ -198,13 +203,14 @@ void VelocityModel::ComputeNextTimeStep(
             Point repWall = ForceRepRoom(allPeds[p], subroom);
 
             // calculate new direction ei according to (6)
-            Point direction = e0(ped, room) + repPed + repWall;
-            
+            Point direction = e0(ped, room); //+ repPed + repWall;
+            ped->direction_nn = direction
+
             std::random_device rd;
             std::mt19937 eng(rd());
             //std::mt19937 mt(ped->GetBuilding()->GetConfig()->GetSeed());
             //std::uniform_real_distribution<double> dist(0, 1.0);
-            //std::normal_distribution<double> dist(_emu,_esigma); //this could be angle
+            //std::cout << "emu = " << _emu << " esigme = " << _esigma << std::endl;
             std::normal_distribution<double> dist(_emu,_esigma); //this could be angle
 
             double random_x = dist(eng);
@@ -213,10 +219,12 @@ void VelocityModel::ComputeNextTimeStep(
             double random_y = dist(eng);
             //std::cout << random_y << std::endl;
             Point noise = Point(random_x,random_y);
+            //std::cout <<"nonoise " << direction._x << " " << direction._y << std::endl;
+
             direction = direction + noise;
             direction = direction.Normalized();
+            //std::cout << "noise "  <<  direction._x << " " << direction._y << std::endl;
 
-            
             
             for(int i = 0; i < size; i++) {
                 Pedestrian * ped1 = neighbours[i];
@@ -224,6 +232,7 @@ void VelocityModel::ComputeNextTimeStep(
                 // my_pair spacing_winkel = GetSpacing(ped, ped1);
                 if(ped->GetUniqueRoomID() == ped1->GetUniqueRoomID()) {
                     spacings.push_back(GetSpacing(ped, ped1, direction, periodic));
+                    spacings_nonoise.push_back(GetSpacing(ped,ped1,direction_nonoise,periodic));
                 } else {
                     // or in neighbour subrooms
                     SubRoom * sb2 =
@@ -238,7 +247,10 @@ void VelocityModel::ComputeNextTimeStep(
 
             // calculate min spacing
             std::sort(spacings.begin(), spacings.end(), sort_pred());
+            std::sort(spacings_nonoise.begin(), spacings_nonoise.end(), sort_pred());
+
             double spacing = spacings[0].first;
+            double spacing_nonoise = spacings_nonoise[0].first;
             //============================================================
             // TODO: Hack for Head on situations: ped1 x ------> | <------- x ped2
             if(0 && direction.NormSquare() < 0.5) {
@@ -256,11 +268,13 @@ void VelocityModel::ComputeNextTimeStep(
             }
             //============================================================
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
+            ped->_speed_nn = OptimalSpeed(ped, spacing_nonoise);
+            
             result_acc.push_back(speed);
 
 
             spacings.clear(); //clear for ped p
-
+            spacings_nonoise.clear();
             // stuck peds get removed. Warning is thrown. low speed due to jam is omitted.
             if(ped->GetTimeInJam() > ped->GetPatienceTime() &&
                ped->GetGlobalTime() > 10000 + ped->GetPremovementTime() &&
@@ -583,3 +597,4 @@ double VelocityModel::GetDWall() const
 {
     return _DWall;
 }
+

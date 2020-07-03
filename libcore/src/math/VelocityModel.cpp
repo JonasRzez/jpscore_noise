@@ -400,7 +400,7 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
     Point dir_nn = ped1->direction_nn;
     Point dir_nn_j = ped2->direction_nn;
-    double dir_angle = acos(dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized())) * 180.0/M_PI;
+    double dir_angle = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
     if(periodic) {
         double x   = ped1->GetPos()._x;
         double x_j = ped2->GetPos()._x;
@@ -432,7 +432,7 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
         // return a pair <dist, condition1>. Then take the smallest dist. In case of equality the biggest condition1
         return my_pair(distp12.Norm(), dir_angle);
     else
-        return my_pair(FLT_MAX, -1);
+        return my_pair(FLT_MAX, -2.);
 }
 Point VelocityModel::ForceRepPed(Pedestrian * ped1, Pedestrian * ped2, int periodic) const
 {

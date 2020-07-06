@@ -428,9 +428,13 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
         ei.Rotate(0, 1).ScalarProduct(ep12); // theta = pi/2. condition2 should <= than l/Distance
     condition2 = (condition2 > 0) ? condition2 : -condition2; // abs
 
-    if((condition1 >= 0) && (condition2 <= l / Distance))
+    if((condition1 >= 0) && (condition2 <= l / Distance)){
         // return a pair <dist, condition1>. Then take the smallest dist. In case of equality the biggest condition1
-        return my_pair(distp12.Norm(), dir_angle);
+        if (abs(dir_angle) > 1.)
+            return my_pair(distp12.Norm(), -3.);
+        else
+            return my_pair(distp12.Norm(), dir_angle);
+    }
     else
         return my_pair(FLT_MAX, -2.);
 }

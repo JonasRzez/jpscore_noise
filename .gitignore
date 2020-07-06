@@ -181,7 +181,12 @@ packages/
 /issues
 /latex
 
-/files
+/files/jureca_upload/trajectories
+/files/jureca_upload/Texfiles
+/files/jureca_upload/__pycashe__
+/files/jureca_upload/venv
+/files/trajectories
+/files/jule_exp_files
 
 /_site
 /systemtest/test_geometry/clean_geometry/log*

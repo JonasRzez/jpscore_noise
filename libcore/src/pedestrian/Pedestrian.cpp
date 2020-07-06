@@ -103,6 +103,9 @@ Pedestrian::Pedestrian()
     _building            = nullptr;
     _spotlight           = false;
     _ticksInThisRoom     = 0;
+    _speed_nn = -1.;
+    _angle_nn_int = -2.;
+    direction_nn = Point(0.,0.);
 
     _agentsCreated++; //increase the number of object created
     _FED_In           = 0.0;
@@ -184,7 +187,9 @@ Pedestrian::Pedestrian(const StartDistribution & agentsParameters, Building & bu
     _ToxicityAnalysis = nullptr;
     _WalkingSpeed     = nullptr;
     _waitingPos = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-    _speed_nn = 0.;
+    _speed_nn = -1.;
+    _angle_nn_int = -2.;
+    direction_nn = Point(0.,0.);
 }
 
 

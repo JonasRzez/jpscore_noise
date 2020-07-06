@@ -1,9 +1,9 @@
 #!/bin/bash -x
 #SBATCH -J db
 #SBATCH --account=jias70
-#SBATCH --nodes=3
-#SBATCH --ntasks-per-node=2
-#SBATCH --cpus-per-task=12
+#SBATCH --nodes=63
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=24
 #SBATCH --output=out.%j
 #SBATCH --error=err.%j
 #SBATCH --time=01:00:00
@@ -23,8 +23,10 @@ export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 rm -r logfile
 mkdir logfile
 
-python folder_ini.py
+python ini_mc.py
+wait
 srun sh -c 'python mc_$(($SLURM_PROCID+1)).py'
-python trajectory_modify.py
+wait
+sbatch bash_py.sh
 
-
+rm mc_*

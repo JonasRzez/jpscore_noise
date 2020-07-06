@@ -1,14 +1,14 @@
 import numpy as np
 import os
 import sys
-
+import evac as ev
 #sys.path.insert(1,'/p/project/jias70/jps_jureca/files/jureca_upload')
 
 
-b_max = 7.
+b_max = 7.1
 b_min = 0.8
 b_step = 0.1
-
+dig = 3
 #i_start = 0
 #i_final = 100
 
@@ -18,12 +18,13 @@ size = (b_max-b_min)/b_step
 #irange = np.arange(i_start,i_final,i_step)
 brange = np.arange(b_min,b_max,b_step)
 #print(brange.shape[0])
+np.save("ini_b.npy", brange)
+brange = np.array([round(i, dig) for i in brange])
+ev.ini_files(brange)
+
+mc_i = 1
 
 
-mc_i = 0
-dig = 3
-os.system("rm -r mc")
-os.system("mkdir mc")
 for b_i in brange:
 
     file  = open("mc_" + str(mc_i) + ".py", "w")

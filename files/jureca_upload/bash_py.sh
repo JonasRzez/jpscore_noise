@@ -21,5 +21,6 @@ module load SciPy-Stack/2019a-Python-3.6.8
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 python waiting_time_err.py
-
+#python density_map.py
+#python trajectory_voronoi.py 
 

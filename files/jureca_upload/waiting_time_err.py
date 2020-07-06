@@ -82,7 +82,9 @@ for T_test in T_test_list:
         print("<calculating " + test_str + " = " + str(lin_var[test_var][bi]) + ">")
         run_id = 0
         for loc in loc_list_runs:
-		print(loc)
+
+            print(loc)
+
             df = pd.read_csv(loc, sep="\s+", header=0, comment="#", skipinitialspace=True)
 
             #min_value = df.groupby('ID')['Y'].min()[df['ID']][0:N_ped - 1]

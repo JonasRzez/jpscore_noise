@@ -101,6 +101,7 @@ lattice_type = 'jule'
 traj_testvar2 = []
 print(test_str2 + " " , lin_var[test_var2])
 runs_tested = N_runs
+col = ["FR","X","Y"]
 for T_test in lin_var[test_var2]:
     print(T_test)
     folder_frame_frac = folder_frame.loc[folder_frame[test_str2] == T_test]['ini_folder'].to_numpy()
@@ -115,7 +116,7 @@ for T_test in lin_var[test_var2]:
     loc_list = [[path + folder + sl + "new_evac_traj_" + af.b_data_name(2 * bi,3) + "_" + str(i) + ".txt" for i in range(runs_tested)] for folder,bi in zip(folder_frame_frac,b_folder)]
     print(np.array(loc_list).shape)
     print("load trajectories " + str(T_test))
-    trajectory_frame = [[pd.read_csv(loc, sep="\s+", header=0, comment = "#") for loc in loc_list_runs if os.path.isfile(loc)] for loc_list_runs in loc_list]
+    trajectory_frame = [[pd.read_csv(loc, sep="\s+", header=0, comment = "#",usecols = col) for loc in loc_list_runs if os.path.isfile(loc)] for loc_list_runs in loc_list]
     #print(trajectory_frame)
     traj_testvar2.append(trajectory_frame)
     print("/load trajectories")

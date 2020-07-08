@@ -18,8 +18,13 @@ linf_fit <- function(test_var2,alpha,wd,printlevel = 0,path,flist,b_list,b_exp =
     
     #
     
+<<<<<<< HEAD
     data = data[data[, "dist"] < 1.6,]
     data = data[data[, "dist"] > 0.3, ]
+=======
+    data = data[data[, "dist"] < b_list[l]/2,]
+    #data = data[data[, "dist"] > 0.1, ]
+>>>>>>> c215e82a6c6d02b39b0bb000e33a9c8ab6a922ce
     x = data$dist
     y = data$ttt
     #run = data$run
@@ -174,11 +179,19 @@ N_exp = c(64,42,67,42,42,57,75)
 #alpha_plot(1.3,"test_str","lm",path,T,b_list,N_list,col,p_level,N_exp,b_exp)
 exp_dat = F
 p_dir = "TTTlong13/"
+<<<<<<< HEAD
 p_level = 1
+=======
+p_level = 0
+>>>>>>> c215e82a6c6d02b39b0bb000e33a9c8ab6a922ce
 
 plot_alpha(1.3,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 1)
 #p_dir = "TTTlong/"
 p_level = 0
 
+<<<<<<< HEAD
 plot_alpha(0.1,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 0)
+=======
+#plot_alpha(0.1,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 0)
+>>>>>>> c215e82a6c6d02b39b0bb000e33a9c8ab6a922ce
 

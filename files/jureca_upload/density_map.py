@@ -34,6 +34,7 @@ T_test_list = lin_var[test_var2]
 lattice_type = 'jule'
 runs_tested = N_runs
 traj_testvar2 = []
+
 col = ["FR", "X", "Y"]
 
 for T_test in T_test_list:
@@ -44,9 +45,7 @@ for T_test in T_test_list:
                  range(runs_tested)] for folder, bi in zip(folder_frame_frac, b_folder)]
     print(np.array(loc_list).shape)
     print("load trajectories " + str(T_test))
-    trajectory_frame = [
-        [pd.read_csv(loc, sep="\s+", header=0, comment="#",usecols = col) for loc in loc_list_runs if os.path.isfile(loc)] for
-        loc_list_runs in loc_list]
+    trajectory_frame = [[pd.read_csv(loc, sep="\s+", header=0, comment="#",usecols=col) for loc in loc_list_runs if os.path.isfile(loc)] for loc_list_runs in loc_list]
     # print(trajectory_frame)
     traj_testvar2.append(trajectory_frame)
     print("/load trajectories")

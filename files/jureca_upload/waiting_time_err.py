@@ -64,7 +64,7 @@ t_end = t_max * fps
 N_del_i = 10
 N_del = 0
 
-col = ["FR", "X", "Y", "ID"]
+col = [ "ID", "FR", "X", "Y"]
 #t_array = np.arange(t_start, t_end, int(fps / 2))
 
 for T_test in T_test_list:
@@ -82,7 +82,10 @@ for T_test in T_test_list:
         print("<calculating " + test_str + " = " + str(lin_var[test_var][bi]) + ">")
         run_id = 0
         for loc in loc_list_runs:
-            print(loc)
+            #print(loc)
+            if os.path.isfile(loc) == False:
+                print("file " + loc + " is missing")
+                continue
             df = pd.read_csv(loc, sep="\s+", header=0, comment="#", skipinitialspace=True, usecols = col)
 
             min_value = df.groupby('ID')['Y'].min()[df['ID']][0:N_ped - 1]

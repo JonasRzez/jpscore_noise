@@ -19,7 +19,7 @@ linf_fit <- function(test_var2,alpha,wd,printlevel = 0,path,flist,b_list,b_exp =
     #
     
     data = data[data[, "dist"] < 1.6,]
-    #data = data[data[, "dist"] > 0.1, ]
+    data = data[data[, "dist"] > 0.3, ]
     x = data$dist
     y = data$ttt
     #run = data$run
@@ -174,7 +174,7 @@ N_exp = c(64,42,67,42,42,57,75)
 #alpha_plot(1.3,"test_str","lm",path,T,b_list,N_list,col,p_level,N_exp,b_exp)
 exp_dat = F
 p_dir = "TTTlong13/"
-p_level = 0
+p_level = 1
 
 plot_alpha(1.3,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 1)
 #p_dir = "TTTlong/"

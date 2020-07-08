@@ -64,7 +64,7 @@ t_end = t_max * fps
 N_del_i = 10
 N_del = 0
 
-#col = ["FR", "X", "Y", "ID"]
+col = ["FR", "X", "Y", "ID"]
 #t_array = np.arange(t_start, t_end, int(fps / 2))
 
 for T_test in T_test_list:
@@ -85,20 +85,20 @@ for T_test in T_test_list:
 
             #print(loc)
 
-            df = pd.read_csv(loc, sep="\s+", header=0, comment="#", skipinitialspace=True,error_bad_lines=False)
+            df = pd.read_csv(loc, sep="\s+", header=0, comment="#", usecols = col,skipinitialspace=True,error_bad_lines=False)
 
-            #min_value = df.groupby('ID')['Y'].min()[df['ID']][0:N_ped - 1]
-            #min_value = min_value[min_value < -0.2]
-            #key_filtered = min_value.keys().values
-            #n_min_frame = df.groupby('ID')['FR'].min()[df['ID']][0:N_ped - 1].nsmallest(N_del_i).index.values
+            min_value = df.groupby('ID')['Y'].min()[df['ID']][0:N_ped - 1]
+            min_value = min_value[min_value < -0.2]
+            key_filtered = min_value.keys().values
+            n_min_frame = df.groupby('ID')['FR'].min()[df['ID']][0:N_ped - 1].nsmallest(N_del_i).index.values
 
-            #n_max_frame = df.groupby('ID')['FR'].max()[df['ID']][0:N_ped - 1].nlargest(N_del).index.values
+            n_max_frame = df.groupby('ID')['FR'].max()[df['ID']][0:N_ped - 1].nlargest(N_del).index.values
 
-            #df = df[df['ID'].isin(key_filtered)]
+            df = df[df['ID'].isin(key_filtered)]
             df = df[df['Y'] > 0.]
-            #df = df[~df['ID'].isin(n_min_frame)]
+            df = df[~df['ID'].isin(n_min_frame)]
 
-            #df = df[~df['ID'].isin(n_max_frame)]
+            df = df[~df['ID'].isin(n_max_frame)]
             t_array = np.arange(t_start, df['FR'].max(), int(fps / 2))
 
             max_frame = df.groupby('ID')['FR'].max()[df['ID']]

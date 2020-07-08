@@ -204,7 +204,7 @@ void VelocityModel::ComputeNextTimeStep(
 
             // calculate new direction ei according to (6)
             Point direction = e0(ped, room); //+ repPed + repWall;
-            ped->direction_nn = direction;
+            ped->SetDirNn(direction);
 
             std::random_device rd;
             std::mt19937 eng(rd());
@@ -269,8 +269,8 @@ void VelocityModel::ComputeNextTimeStep(
             }
             //============================================================
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
-            ped->_speed_nn = OptimalSpeed(ped, spacing_nonoise);
-            ped->_angle_nn_int = spacings_nonoise[0].second;
+            ped->SetSpeedNn(OptimalSpeed(ped, spacing_nonoise));
+            ped->SetAngleNn(spacings_nonoise[0].second);
             result_acc.push_back(speed);
 
 
@@ -398,8 +398,8 @@ my_pair
 VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int periodic) const
 {
     Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
-    Point dir_nn = ped1->direction_nn;
-    Point dir_nn_j = ped2->direction_nn;
+    Point dir_nn = ped1->GetDirNn();
+    Point dir_nn_j = ped2->GetDirNn();
     double dir_angle = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
     if(periodic) {
         double x   = ped1->GetPos()._x;

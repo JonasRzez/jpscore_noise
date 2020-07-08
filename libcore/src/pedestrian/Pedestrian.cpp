@@ -105,7 +105,7 @@ Pedestrian::Pedestrian()
     _ticksInThisRoom     = 0;
     _speed_nn = -1.;
     _angle_nn_int = -2.;
-    direction_nn = Point(0.,0.);
+    _direction_nn = Point(0.,0.);
 
     _agentsCreated++; //increase the number of object created
     _FED_In           = 0.0;
@@ -189,7 +189,7 @@ Pedestrian::Pedestrian(const StartDistribution & agentsParameters, Building & bu
     _waitingPos = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     _speed_nn = -1.;
     _angle_nn_int = -2.;
-    direction_nn = Point(0.,0.);
+    _direction_nn = Point(0.,0.);
 }
 
 
@@ -309,6 +309,20 @@ void Pedestrian::SetV0Norm(
     _V0IdleEscalatorDownStairs = v0IdleEscalatorDown;
 }
 
+void Pedestrian::SetDirNn(const Point & direction_nn)
+{
+    _direction_nn = direction_nn;
+}
+
+void Pedestrian::SetSpeedNn(double speed_nn)
+{
+    _speed_nn = speed_nn;
+}
+
+void Pedestrian::SetAngleNn(double angle_nn_int)
+{
+    _angle_nn_int = angle_nn_int;
+}
 
 void Pedestrian::SetFEDIn(double FED_In)
 {
@@ -520,6 +534,11 @@ const Point & Pedestrian::GetPos() const
     return _ellipse.GetCenter();
 }
 
+const Point & Pedestrian::GetDirNn() const
+{
+    return _direction_nn;
+}
+
 int Pedestrian::GetCellPos() const
 {
     return _lastCellPosition;
@@ -535,6 +554,15 @@ const Point & Pedestrian::GetV0() const
     return _V0;
 }
 
+double Pedestrian::GetSpeedNn() const
+{
+    return _speed_nn;
+}
+
+double Pedestrian::GetAngleNn() const
+{
+    return _angle_nn_int;
+}
 
 double Pedestrian::GetV0Norm() const
 {

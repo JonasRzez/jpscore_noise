@@ -64,6 +64,9 @@ private:
     double _tau;       // Reaction time: 0.5
     double _T;         // OV function
     double _deltaT;    // step size
+    double _speed_nn;
+    Point _direction_nn;
+    double _angle_nn_int;
     
     JEllipse _ellipse; // the shape of this pedestrian
     Point _V0;         //vector V0
@@ -164,6 +167,9 @@ public:
     void SetMass(double m);
     void SetTau(double tau);
     void SetEllipse(const JEllipse & e);
+    void SetDirNn(const Point & direction_nn);
+    void SetSpeedNn(double speedNn);
+    void SetAngleNn(double angle_nn_int);
 
     double GetT() const;
     void SetT(double T);
@@ -206,9 +212,9 @@ public:
     int GetSubRoomUID() const;
     double GetMass() const;
     double GetTau() const;
-    double _speed_nn;
-    Point direction_nn;
-    double _angle_nn_int;
+    double GetSpeedNn() const;
+    double GetAngleNn() const;
+    
     const JEllipse & GetEllipse() const;
     int GetExitIndex() const;
     Router * GetRouter() const;
@@ -218,6 +224,8 @@ public:
     void SetLastE0(Point E0);
     // Eigenschaften der Ellipse
     const Point & GetPos() const;
+    const Point & GetDirNn() const;
+    
     int GetCellPos() const;
     const Point & GetV() const;
     const Point & GetV0() const;

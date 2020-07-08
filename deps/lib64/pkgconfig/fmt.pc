@@ -1,0 +1,11 @@
+prefix=/p/project/jias70/jpscore/deps
+exec_prefix=/p/project/jias70/jpscore/deps
+libdir=/p/project/jias70/jpscore/deps/lib64
+includedir=/p/project/jias70/jpscore/deps/include
+
+Name: fmt
+Description: A modern formatting library
+Version: 6.0.0
+Libs: -L${libdir} -lfmt
+Cflags: -I${includedir}
+

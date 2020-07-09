@@ -202,11 +202,11 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
         double b       = ped->GetSmallerAxis();
         double phi     = atan2(ped->GetEllipse().GetSinPhi(), ped->GetEllipse().GetCosPhi());
         double RAD2DEG = 180.0 / M_PI;
-        //double speed_nn = ped->GetSpeedNn();
-        //double angle_nn_int = ped->GetAngleNn();
+        double speed_nn = ped->GetSpeedNn();
+        double angle_nn_int = ped->GetAngleNn();
         unsigned int precision = GetPrecision();
         std::string frame      = fmt::format(
-            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:0.2f}\t{:0.2f}\t{:d}",
+            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:0.2f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.2f}",
             ped->GetID(),
             frameNr,
             x,
@@ -218,8 +218,9 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
             a,
             b,
             phi * RAD2DEG,
-            color
-            );
+            color,
+            speed_nn,
+            angle_nn_int);
         for(const auto & option : _optionalOutputOptions) {
             frame.append(_optionalOutput[option](ped));
         }
@@ -227,6 +228,3 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
         Write(frame);
     }
 }
-/*speed_nn,
-angle_nn_int*/
-/*\t{:0.2f}\t{:0.2f}*/

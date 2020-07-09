@@ -76,11 +76,12 @@ for T_test in T_test_list:
     bi = 0
 
     for loc_list_runs in loc_list:
+        run_id = int(0)
+
         ttt_arr = np.empty(0)
         dist_arr = np.empty(0)
         run_id_arr = np.empty(0)
         print("<calculating " + test_str + " = " + str(lin_var[test_var][bi]) + ">")
-        run_id = 0
         for loc in loc_list_runs:
             #print(loc)
             if os.path.isfile(loc) == False:
@@ -88,12 +89,14 @@ for T_test in T_test_list:
                 continue
             df = pd.read_csv(loc, sep="\s+", header=0, comment="#", skipinitialspace=True, usecols = col)
 
-            min_value = df.groupby('ID')['Y'].min()[df['ID']][0:N_ped - 1]
+            min_value = df.groupby('ID')['Y'].min()[df['ID']]
+            #print(min_value.keys())
+            min_value = min_value
             min_value = min_value[min_value < -0.2]
             key_filtered = min_value.keys().values
-            n_min_frame = df.groupby('ID')['FR'].min()[df['ID']][0:N_ped - 1].nsmallest(N_del_i).index.values
+            n_min_frame = df.groupby('ID')['FR'].min()[df['ID']].nsmallest(N_del_i).index.values
 
-            n_max_frame = df.groupby('ID')['FR'].max()[df['ID']][0:N_ped - 1].nlargest(N_del).index.values
+            n_max_frame = df.groupby('ID')['FR'].max()[df['ID']].nlargest(N_del).index.values
 
             df = df[df['ID'].isin(key_filtered)]
             df = df[df['Y'] > 0.]
@@ -116,14 +119,16 @@ for T_test in T_test_list:
             ttt = df['max_frame'].values - df['FR'].values
             ttt_arr = np.append(ttt_arr, ttt)
             dist_arr = np.append(dist_arr, dist_ttt)
-            run_id_arr_i = np.empty(ttt.shape[0])
-            run_id_arr_i.fill(run_id)
+            run_id_arr_i = np.empty(dist_ttt.shape[0])
+            run_id_arr_i.fill(int(run_id))
             run_id_arr = np.append(run_id_arr,run_id_arr_i)
-        run_id += 1
+
+            run_id += 1
         print("</calculating " + test_str + " = " + str(lin_var[test_var][bi]) + ">")
         #print("shapes,", ttt_arr.shape, dist_arr.shape, run_id_arr.shape)
 
         df_plot = pd.DataFrame({"ttt": ttt_arr / fps, "dist": dist_arr,"id":run_id_arr})
+        print(df_plot)
         df_mean = df_plot.groupby("dist").mean()
 
         file = path + "waittime/df_plot" + str(lin_var[test_var][bi]) + "_" + str(test_str2) + "_" + str(T_test) + ".csv"
@@ -131,7 +136,7 @@ for T_test in T_test_list:
 
         df_plot.to_csv(file)
         df_mean.to_csv(file_mean)
-        plt.plot(dist_ttt, ttt, marker = "o", linestyle='none')
+        #plt.plot(dist_ttt, ttt, marker = "o", linestyle='none')
         waittime_list.append(file)
         waittime_list_mean.append(file_mean)
         test_var_list.append(lin_var[test_var][bi])

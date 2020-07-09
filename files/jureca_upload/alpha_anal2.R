@@ -18,13 +18,9 @@ linf_fit <- function(test_var2,alpha,wd,printlevel = 0,path,flist,b_list,b_exp =
     
     #
     
-<<<<<<< HEAD
-    data = data[data[, "dist"] < 1.6,]
-    data = data[data[, "dist"] > 0.3, ]
-=======
-    data = data[data[, "dist"] < b_list[l]/2,]
-    #data = data[data[, "dist"] > 0.1, ]
->>>>>>> c215e82a6c6d02b39b0bb000e33a9c8ab6a922ce
+    data = data[data[, "dist"] < 2.0,]
+    data = data[data[, "dist"] > 0.2, ]
+
     x = data$dist
     y = data$ttt
     #run = data$run
@@ -116,7 +112,7 @@ plot_alpha <- function(test_var2, test_str, motexp, path, exp, b_list, N_list, c
   #print(files)
   test_var = test_var_fetch(variable,files,test_var2,b_list)
   print(test_var)
-  flist = files[files$test_str2 == test_var2, "files_mean"]
+  flist = files[files$test_str2 == test_var2, "files"]
   print("flist = ", flist)
   alpha = linf_fit(test_var2,alpha,wd_sim,printlevel,path,flist,test_var,b_exp,p_dir = p_dir)
   print("alpha = " ,alpha)
@@ -160,7 +156,7 @@ wd_sim = "~/Documents/phd/c++/jps_ben_vel/jpscore/files/jureca_upload"
 path=read.csv("path.csv",header = TRUE,sep=',')$path
 #path = "trajectories/ini_lm_N_ped55_tmax310_size_0_17_fps_16_testvar_b/" # wedge shaped sim
 #path = "trajectories/ini_lm_N_ped55_tmax310_size_0_17_fps_16_testvar_N_ped/" # testing for nped with high mot
-path = "trajectories/ini_lm_N_ped55_tmax308_size_0_17_fps_16_testvar_b/" # main sim
+#path = "trajectories/ini_lm_N_ped55_tmax308_size_0_17_fps_16_testvar_b/" # main sim
 
 #path = "trajectories/ini_lm_N_ped500_tmax3000_size_0_17_fps_16_testvar_b/"
 #N_list = read.csv(paste(path,"N_list.csv",sep = ""),header = TRUE, sep = ",")$N
@@ -177,21 +173,14 @@ N_exp = c(64,42,67,42,42,57,75)
 
 
 #alpha_plot(1.3,"test_str","lm",path,T,b_list,N_list,col,p_level,N_exp,b_exp)
-exp_dat = F
+exp_dat = T
 p_dir = "TTTlong13/"
-<<<<<<< HEAD
-p_level = 1
-=======
-p_level = 0
->>>>>>> c215e82a6c6d02b39b0bb000e33a9c8ab6a922ce
 
-plot_alpha(1.3,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 1)
+p_level = 0
+
+plot_alpha(1.3,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 0)
 #p_dir = "TTTlong/"
 p_level = 0
 
-<<<<<<< HEAD
 plot_alpha(0.1,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 0)
-=======
-#plot_alpha(0.1,"test_str","lm",path,exp_dat,b_list,N_list,col,p_level,N_exp,b_exp,"b",p_dir, print_exp = 0)
->>>>>>> c215e82a6c6d02b39b0bb000e33a9c8ab6a922ce
 

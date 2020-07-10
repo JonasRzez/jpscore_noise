@@ -1,17 +1,10 @@
-python time_writer.py
+python ini_mc.py
+wait
+python mc_$(($SLURM_PROCID+1)).py &
+wait
+sbatch bash_py.sh
 
-python folder_ini.py
-
-'python mc_$(($SLURM_PROCID+1)).py'
-
-#wait
-#python trajectory_vornoi.py
-#wait
-#python density_map.py &
-#python waiting_time_err.py &
-#wait
-#python time_writer.py
-
+rm mc_*
 
 
 

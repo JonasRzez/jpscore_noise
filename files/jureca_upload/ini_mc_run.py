@@ -13,9 +13,7 @@ dig = 3
 #i_final = 100
 
 size = (b_max-b_min)/b_step
-runstep = 0.5
-#print(runstep/b_step)
-run_jump = int(runstep/b_step)
+#runstep = 1
 #i_step = 1
 #irange = np.arange(i_start,i_final,i_step)
 brange = np.arange(b_min,b_max,b_step)
@@ -27,12 +25,10 @@ ev.ini_files(brange)
 mc_i = 1
 
 
-for i in np.arange(0,size)[::run_jump]:
-    ranger = int(i + run_jump)
-    if ranger > size:
-        ranger -= ranger - size
-    file = open("mc_" + str(mc_i) + ".py", "w")
-    b_write = "b = np.arange(" + str(brange[int(i)]) + "," + str(brange[int(ranger)]) + "," + str(b_step) + ") \n"
+for b_i in brange:
+
+    file  = open("mc_" + str(mc_i) + ".py", "w")
+    b_write = "b = np.arange(" + str(round(b_i, dig)) + "," + str(round(b_i + b_step, dig)) + "," + str(b_step) + ") \n"
     #i_start = str(i)
     #i_final = str(i + i_step)
     file.write("import sys \n")
@@ -48,5 +44,15 @@ for i in np.arange(0,size)[::run_jump]:
 
     file.close()
     mc_i += 1
+    
+run_prog = ""
+for i in range(brange.shape[0]):
+    prog = " python mc_" + str(int(i+1)) + ".py"
+    run_prog += prog
+    if i < brange.shape[0]:
+        run_prog = run_prog + " & "
+print(run_prog)
+os.system(run_prog)
+os.system("python waiting_time_err.py")
     
     

@@ -128,7 +128,6 @@ for T_test in T_test_list:
         #print("shapes,", ttt_arr.shape, dist_arr.shape, run_id_arr.shape)
 
         df_plot = pd.DataFrame({"ttt": ttt_arr / fps, "dist": dist_arr,"id":run_id_arr})
-        #print(df_plot)
         df_mean = df_plot.groupby("dist").mean()
 
         file = path + "waittime/df_plot" + str(lin_var[test_var][bi]) + "_" + str(test_str2) + "_" + str(T_test) + ".csv"

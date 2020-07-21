@@ -183,8 +183,8 @@ def read_subroom_walls(xml_doc):
 # path_name     = 'SBB'
 # traj_filename = '/Users/tobias/Documents/development/jupedsim/jpscore-issues/426-corner/01-no/corner_traj'
 # geo_filename = '/Users/tobias/Documents/development/jupedsim/jpscore-issues/426-corner/01-no/corner_geo.xml'
-traj_filename ='/Users/jonas/Documents/phd/c++/jps_ben_vel/jpscore/files/jureca_upload/evac_traj_5_6_0'
-geo_filename = '/Users/jonas/Documents/phd/c++/jps_ben_vel/jpscore/files/jureca_upload/geo_2_8.xml'
+traj_filename ='/Users/jonas/Documents/phd/c++/jps_ben_vel/jpscore/files/jureca_upload/trajectories/ini_lm_N_ped55_tmax2800_size_0_17_fps_16_testvar_b/ini_3_3_lm_55_esigma_0_7_tmax_2800_periodic_0_v0_1_34_T_1_3_rho_ini_3_6_Nped_55_0_motfrac_1_0/new_evac_traj_6_6_0'
+geo_filename = '/Users/jonas/Documents/phd/c++/jps_ben_vel/jpscore/files/jureca_upload/trajectories/ini_lm_N_ped55_tmax2800_size_0_17_fps_16_testvar_b/ini_3_3_lm_55_esigma_0_7_tmax_2800_periodic_0_v0_1_34_T_1_3_rho_ini_3_6_Nped_55_0_motfrac_1_0/geo_3_3.xml'
 
 fps = 16
 

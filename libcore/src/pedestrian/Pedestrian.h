@@ -67,6 +67,7 @@ private:
     double _speed_nn;
     Point _direction_nn;
     double _angle_nn_int;
+    int _intID;
     
     JEllipse _ellipse; // the shape of this pedestrian
     Point _V0;         //vector V0
@@ -170,6 +171,7 @@ public:
     void SetDirNn(const Point & direction_nn);
     void SetSpeedNn(double speedNn);
     void SetAngleNn(double angle_nn_int);
+    void SetIntID(int intID);
 
     double GetT() const;
     void SetT(double T);
@@ -214,7 +216,7 @@ public:
     double GetTau() const;
     double GetSpeedNn() const;
     double GetAngleNn() const;
-    
+    int GetIntID() const;
     const JEllipse & GetEllipse() const;
     int GetExitIndex() const;
     Router * GetRouter() const;

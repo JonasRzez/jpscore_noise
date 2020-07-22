@@ -180,7 +180,7 @@ void TrajectoriesTXT::WriteHeader(long nPeds, double fps, Building * building, i
         header.append(_optionalOutputInfo[option]);
     }
 
-    header.append("\n#ID\tFR\tX\tY\tZ\tA\tB\tANGLE\tCOLOR\tspeed_nn\tANGLE_int_nn");
+    header.append("\n#ID\tFR\tX\tY\tANGLE\tCOLOR\tspeed_nn\tANGLE_int_nn\tIntID");
     // Add header for optional output options
     for(const auto & option : _optionalOutputOptions) {
         header.append(_optionalOutputHeader[option]);
@@ -196,31 +196,29 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
     for(auto ped : allPeds) {
         double x       = ped->GetPos()._x;
         double y       = ped->GetPos()._y;
-        double z       = ped->GetElevation();
+        //double z       = ped->GetElevation();
         int color      = ped->GetColor();
-        double a       = ped->GetLargerAxis();
-        double b       = ped->GetSmallerAxis();
+        //double a       = ped->GetLargerAxis();
+        //double b       = ped->GetSmallerAxis();
         double phi     = atan2(ped->GetEllipse().GetSinPhi(), ped->GetEllipse().GetCosPhi());
         double RAD2DEG = 180.0 / M_PI;
         double speed_nn = ped->GetSpeedNn();
         double angle_nn_int = ped->GetAngleNn();
+        int intID = ped->GetIntID();
         unsigned int precision = GetPrecision();
         std::string frame      = fmt::format(
-            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:0.2f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.2f}",
+            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.2f}\t{:d}",
             ped->GetID(),
             frameNr,
             x,
             precision,
             y,
             precision,
-            z,
-            precision,
-            a,
-            b,
             phi * RAD2DEG,
             color,
             speed_nn,
-            angle_nn_int);
+            angle_nn_int,
+            intID);
         for(const auto & option : _optionalOutputOptions) {
             frame.append(_optionalOutput[option](ped));
         }

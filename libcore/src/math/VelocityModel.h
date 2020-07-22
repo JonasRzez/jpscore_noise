@@ -101,7 +101,8 @@ private:
       * and should be calculated *before* calling OptimalSpeed
       * @return Point
       */
-    my_pair GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int periodic) const;
+    std::tuple<double,double,int>
+ GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int periodic) const;
     /**
       * Repulsive force between two pedestrians ped1 and ped2 according to
       * the Velocity model (to be published in TGF15)

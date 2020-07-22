@@ -150,13 +150,13 @@ void VelocityModel::ComputeNextTimeStep(
     {
         std::vector<Point> result_acc = std::vector<Point>();
         result_acc.reserve(nSize);
-        std::vector<my_pair> spacings = std::vector<my_pair>();
-        std::vector<my_pair> spacings_nonoise = std::vector<my_pair>();
+        std::vector<std::tuple<double,double,int>>spacings = std::vector<std::tuple<double,double,int>>();
+        std::vector<std::tuple<double,double,int>> spacings_nonoise = std::vector<std::tuple<double,double,int>>();
 
         spacings.reserve(nSize);             // larger than needed
-        spacings.push_back(my_pair(100, 1)); // in case there are no neighbors
+        spacings.push_back(std::make_tuple(100,1,-1)); // in case there are no neighbors
         spacings_nonoise.reserve(nSize);             // larger than needed
-        spacings_nonoise.push_back(my_pair(100, 1)); // in case there are no neighbors
+        spacings_nonoise.push_back(std::make_tuple(100,1,-1)); // in case there are no neighbors
         const int threadID = omp_get_thread_num();
 
         int start = threadID * partSize;
@@ -247,11 +247,11 @@ void VelocityModel::ComputeNextTimeStep(
             //TODO update direction every DT?
 
             // calculate min spacing
-            std::sort(spacings.begin(), spacings.end(), sort_pred());
-            std::sort(spacings_nonoise.begin(), spacings_nonoise.end(), sort_pred());
+            std::sort(spacings.begin(), spacings.end());
+            std::sort(spacings_nonoise.begin(), spacings_nonoise.end());
 
-            double spacing = spacings[0].first;
-            double spacing_nonoise = spacings_nonoise[0].first;
+            double spacing = std::get<0>(spacings[0]);
+            double spacing_nonoise = std::get<0>(spacings_nonoise[0]);
             //============================================================
             // TODO: Hack for Head on situations: ped1 x ------> | <------- x ped2
             if(0 && direction.NormSquare() < 0.5) {
@@ -270,7 +270,8 @@ void VelocityModel::ComputeNextTimeStep(
             //============================================================
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
             ped->SetSpeedNn(OptimalSpeed(ped, spacing_nonoise));
-            ped->SetAngleNn(spacings_nonoise[0].second);
+            ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
+            ped->SetIntID(std::get<2>(spacings_nonoise[0]));
             result_acc.push_back(speed);
 
 
@@ -379,7 +380,6 @@ Point VelocityModel::e0(Pedestrian * ped, Room * room) const
     return desired_direction;
 }
 
-
 double VelocityModel::OptimalSpeed(Pedestrian * ped, double spacing) const
 {
     double v0    = ped->GetV0Norm();
@@ -394,7 +394,7 @@ double VelocityModel::OptimalSpeed(Pedestrian * ped, double spacing) const
 }
 
 // return spacing and id of the nearest pedestrian
-my_pair
+std::tuple<double,double,int>
 VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int periodic) const
 {
     Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
@@ -431,12 +431,12 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     if((condition1 >= 0) && (condition2 <= l / Distance)){
         // return a pair <dist, condition1>. Then take the smallest dist. In case of equality the biggest condition1
         if (abs(dir_angle) > 1.)
-            return my_pair(distp12.Norm(), -3.);
+            return std::make_tuple(distp12.Norm(), -3.,ped2->GetID());
         else
-            return my_pair(distp12.Norm(), dir_angle);
+            return std::make_tuple(distp12.Norm(), dir_angle,ped2->GetID());
     }
     else
-        return my_pair(FLT_MAX, -2.);
+        return std::make_tuple(FLT_MAX, -2.,-2);
 }
 Point VelocityModel::ForceRepPed(Pedestrian * ped1, Pedestrian * ped2, int periodic) const
 {

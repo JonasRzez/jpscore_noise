@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 
 path, folder_list, N_runs, b, cross_var, folder_frame, test_str, test_var, test_var2, test_str2, lin_var, T_test_list, sec_test_var, N_ped, fps, mot_frac = af.var_ini()
-af.file_writer(path, folder_list, N_runs, b, cross_var, folder_frame, test_str, test_var)
+#af.file_writer(path, folder_list, N_runs, b, cross_var, folder_frame, test_str, test_var)
 
 sl = "/"
 T_test_list = lin_var[test_var2]
@@ -58,6 +58,8 @@ for T_test in T_test_list:
 
     loc_list = [[path + folder + sl + "new_evac_traj_" + af.b_data_name(2 * bi, 3) + "_" + str(i) + ".txt" for i in
                  range(runs_tested)] for folder, bi in zip(folder_frame_frac, b_folder)]
+    loc_list = [["ini_2_9_lm_55_esigma_0_7_tmax_156_periodic_0_v0_1_34_T_1_3_rho_ini_3_6_Nped_55_0_motfrac_1_0" + sl + "new_evac_traj_" + af.b_data_name( 5.80000001, 3) + "_" + str(i) + ".txt" for i in
+                 range(900)]]
     bi = 0
 
     v_0_mean = np.empty(blist.shape[0])
@@ -71,9 +73,10 @@ for T_test in T_test_list:
         p0count = 0
         for loc in loc_list_runs:
             if os.path.isfile(loc) == False:
-                # print("WARNING: file " + loc + " not found.")
+                print("WARNING: file " + loc + " not found.")
                 continue
             df = pd.read_csv(loc, sep="\s+", header=0, comment="#", skipinitialspace=True, usecols=col)
+            print(loc)
             # df['ANGLE_int_nn'] = df['ANGLE_int_nn'].values.astype(np.float)
             df = df[df['FR'] > 10 * fps]
             df = df[df['ANGLE_int_nn'].values.astype(np.float) >= -1.0]

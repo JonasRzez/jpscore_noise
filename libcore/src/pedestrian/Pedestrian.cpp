@@ -106,6 +106,7 @@ Pedestrian::Pedestrian()
     _speed_nn = -1.;
     _angle_nn_int = -2.;
     _intID = -1;
+    _intIDN = -1;
     _direction_nn = Point(0.,0.);
 
     _agentsCreated++; //increase the number of object created
@@ -191,6 +192,7 @@ Pedestrian::Pedestrian(const StartDistribution & agentsParameters, Building & bu
     _speed_nn = -1.;
     _angle_nn_int = -2.;
     _intID = -1;
+    _intIDN = -1;
     _direction_nn = Point(0.,0.);
 }
 
@@ -329,6 +331,11 @@ void Pedestrian::SetAngleNn(double angle_nn_int)
 void Pedestrian::SetIntID(int intID)
 {
     _intID = intID;
+}
+
+void Pedestrian::SetIntIDN(int intIDN)
+{
+    _intIDN = intIDN;
 }
 
 
@@ -575,6 +582,11 @@ double Pedestrian::GetAngleNn() const
 int Pedestrian::GetIntID() const
 {
     return _intID;
+}
+
+int Pedestrian::GetIntIDN() const
+{
+    return _intIDN;
 }
 
 double Pedestrian::GetV0Norm() const

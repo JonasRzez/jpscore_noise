@@ -272,6 +272,8 @@ void VelocityModel::ComputeNextTimeStep(
             ped->SetSpeedNn(OptimalSpeed(ped, spacing_nonoise));
             ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
             ped->SetIntID(std::get<2>(spacings_nonoise[0]));
+            ped->SetIntIDN(std::get<2>(spacings[0]));
+            
             result_acc.push_back(speed);
 
 

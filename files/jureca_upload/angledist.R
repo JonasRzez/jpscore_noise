@@ -5,7 +5,7 @@ library(modeest)
 setwd("~/Documents/phd/c++/jps_ben_vel/jpscore/files/jureca_upload")
 
 path=read.csv("path.csv",header = TRUE,sep=',')$path
-
+#path = "ini_3_0_lm_55_esigma_0_7_tmax_156_periodic_0_v0_1_34_T_1_3_rho_ini_3_6_Nped_55_0_motfrac_1_0/"
 b_name <- function(b){
   split_b = strsplit(b, "")[[1]]
   b1 = split_b[1]
@@ -18,7 +18,9 @@ b_name <- function(b){
   return(b_string)
 }
 
-b_list = 2 * read.csv(paste(path,"b_list.csv",sep = ""),header = TRUE, sep = ",")$b
+#b_list = 2 * read.csv(paste(path,"b_list.csv",sep = ""),header = TRUE, sep = ",")$b
+#b_list = seq(0.8, 6, by=0.1)
+b_list = c(6.00001)
 N_list = read.csv(paste(path,"N_ped_list.csv",sep = ""),header = TRUE, sep = ",")$N
 
 D = c()
@@ -31,25 +33,27 @@ normalize <- function(x) {
 for (b in b_list){
   #print(as.numeric(b * 1.0001))
   b_string = b_name(toString(b * 1.0000001))
+  
   data = read.csv(paste(path,"distributions/","dist_",b_string,".csv",sep = ""),header = TRUE,sep=',')
+
   #print(head(data))
   #angle = data$angle
   angle = data[data$angle > 0.0, ]$angle
   plot = ggplot(data, aes(x=angle)) + geom_histogram(aes(y = stat(count / sum(count))))  + theme_classic( base_size = 14)   + ylab(TeX("$\\rho_0$")) + xlab(TeX("$\\Theta$"))
   print(plot)
-  ggsave(paste(path,"/plots/angledist/","dist_",b_string,".png",sep=""),width = 5, height = 4)
-  #h = hist(angle)
+  ggsave(paste("plots/angledist/","dist_",b_string,".png",sep=""),width = 5, height = 4)
+  #h = hist(angle,breaks=60)
   #print(h$counts)
-  a = dip.test(angle)
+  #a = dip.test(angle)
   #print(a)
   #plot(density(angle),main=b_string)
-  print(mfv(angle))
-  print("uh")
+  #print(mfv(angle))
+  #print("uh")
   #print(a$p.value)
   #D = c(D,a$D)
   #print(a[[2]])
-  p = c(p,a$p.value)
-  D = c(D,a$statistic)
+  #p = c(p,a$p.value)
+  #D = c(D,a$statistic)
 }
 
 #dfp = data.frame(b = b_list, p = p, D = D)

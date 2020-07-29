@@ -357,6 +357,7 @@ def var_ini():
     print("current path is ", path)
     folder_frame = pd.read_csv(path + "folder_list.csv")
     folder_key = folder_frame.keys()
+    print(folder_key)
     folder_list = np.array(folder_frame['ini_folder'])
 
     folder = "trajectories/"

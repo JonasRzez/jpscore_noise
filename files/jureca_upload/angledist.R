@@ -21,7 +21,7 @@ b_name <- function(b){
 b_list = 2 * read.csv(paste(path,"b_list.csv",sep = ""),header = TRUE, sep = ",")$b
 #b_list = seq(0.8, 6, by=0.1)
 #b_list = c(6.00001)
-N_list = read.csv(paste(path,"N_ped_list.csv",sep = ""),header = TRUE, sep = ",")$N
+#N_list = read.csv(paste(path,"N_ped_list.csv",sep = ""),header = TRUE, sep = ",")$N
 
 D = c()
 p = c()
@@ -39,7 +39,7 @@ for (b in b_list){
   #print(head(data))
   #angle = data$angle
   angle = data[data$angle > 0.0, ]$angle
-  plot = ggplot(data, aes(x=angle)) + geom_histogram(aes(y = stat(count / sum(count))))  + theme_classic( base_size = 14)   + ylab(TeX("$\\rho_0$")) + xlab(TeX("$\\Theta$"))
+  plot = ggplot(data, aes(x=angle)) + geom_histogram(aes(y = stat(count / sum(count))),bins = 100)  + theme_classic( base_size = 14)   + ylab(TeX("$\\rho_0$")) + xlab(TeX("$\\Theta$"))
   print(plot)
   ggsave(paste(path,"plots/angledist/","dist_",b_string,".png",sep=""),width = 5, height = 4)
   #h = hist(angle,breaks=60)

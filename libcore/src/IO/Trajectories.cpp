@@ -208,7 +208,7 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
         int intIDN = ped->GetIntIDN();
         unsigned int precision = GetPrecision();
         std::string frame      = fmt::format(
-            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.2f}\t{:d}",
+            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.6f}\t{:d}",
             ped->GetID(),
             frameNr,
             x,

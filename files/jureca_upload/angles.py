@@ -42,7 +42,7 @@ def dist(x1, y1, x2, y2, x3, y3): # x3,y3 is the point
     return dist
 
 os.system("mkdir " + path  + "distributions")
-col = ["FR", "X", "Y", "ID", "speed_nn", "ANGLE_int_nn"]
+col = ["FR", "X", "Y", "ID", "speed_nn", "ANGLE_int_nn","IntID"]
 blist = 2 * lin_var[test_var]
 v_0_list = []
 resultfolder = "distributions/"
@@ -82,7 +82,12 @@ for T_test in T_test_list:
             #print(loc)
             # df['ANGLE_int_nn'] = df['ANGLE_int_nn'].values.astype(np.float)
             df = df[df['FR'] > 10 * fps]
+            df = df[df['IntID'] > 0]
+            df = df[df['Y'] > 0]
+
             df = df[df['ANGLE_int_nn'].values.astype(np.float) >= -1.0]
+            #df = df[df['ANGLE_int_nn'] != 1.]
+            #df = df[df['ANGLE_int_nn'] != 0.]
             df = df[df['speed_nn'].values.astype(np.float) >= 0.0]
             df = df[df['speed_nn'].values.astype(np.float) < 1.34]
             p0 = df.groupby('FR')['speed_nn'].max()

@@ -224,6 +224,7 @@ void VelocityModel::ComputeNextTimeStep(
 
             direction = direction + noise;
             direction = direction.Normalized();
+            ped->SetDir(direction);
             //std::cout << "noise "  <<  direction._x << " " << direction._y << std::endl;
 
             
@@ -270,7 +271,8 @@ void VelocityModel::ComputeNextTimeStep(
             //============================================================
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
             ped->SetSpeedNn(OptimalSpeed(ped, spacing_nonoise));
-            ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
+            //ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
+            ped->SetAngleNn(std::get<1>(spacings[0]));
             ped->SetIntID(std::get<2>(spacings_nonoise[0]));
             ped->SetIntIDN(std::get<2>(spacings[0]));
             
@@ -402,7 +404,16 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
     Point dir_nn = ped1->GetDirNn();
     Point dir_nn_j = ped2->GetDirNn();
-    double dir_angle = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
+    Point dir = ped1->GetDir();
+    Point dir_j = ped2->GetDir();
+    double dir_angle_nn;
+    if (dir_nn.NormSquare() > 0. && dir_nn_j.NormSquare() > 0.){
+        dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
+    }
+    else{
+        dir_angle_nn = -3.;
+    }
+    double dir_angle = dir.Normalized().ScalarProduct(dir_j.Normalized());
     if(periodic) {
         double x   = ped1->GetPos()._x;
         double x_j = ped2->GetPos()._x;
@@ -432,13 +443,14 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
 
     if((condition1 >= 0) && (condition2 <= l / Distance)){
         // return a pair <dist, condition1>. Then take the smallest dist. In case of equality the biggest condition1
-        if (abs(dir_angle) > 1.)
-            return std::make_tuple(distp12.Norm(), -3.,ped2->GetID());
+        if (abs(dir_angle_nn) > 1.)
+            return std::make_tuple(distp12.Norm(), -5.,ped2->GetID());
         else
-            return std::make_tuple(distp12.Norm(), dir_angle,ped2->GetID());
+            return std::make_tuple(distp12.Norm(), dir_angle_nn, ped2->GetID());
     }
     else
-        return std::make_tuple(FLT_MAX, -2.,-2);
+        return std::make_tuple(FLT_MAX, -2., -2);
+        
 }
 Point VelocityModel::ForceRepPed(Pedestrian * ped1, Pedestrian * ped2, int periodic) const
 {

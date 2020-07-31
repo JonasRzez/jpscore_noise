@@ -66,11 +66,14 @@ private:
     double _deltaT;    // step size
     double _speed_nn;
     Point _direction_nn;
+    Point _direction;
+
     double _angle_nn_int;
+    double _angle_int;
     int _intID;
     int _intIDN;
     
-    JEllipse _ellipse; // the shape of this pedestrian
+    JEllipse _ellipse; //the shape of this pedestrian
     Point _V0;         //vector V0
 
 
@@ -170,8 +173,12 @@ public:
     void SetTau(double tau);
     void SetEllipse(const JEllipse & e);
     void SetDirNn(const Point & direction_nn);
+    void SetDir(const Point & direction);
+
     void SetSpeedNn(double speedNn);
     void SetAngleNn(double angle_nn_int);
+    void SetAngle(double angle_int);
+
     void SetIntID(int intID);
     void SetIntIDN(int intIDN);
 
@@ -218,6 +225,8 @@ public:
     double GetTau() const;
     double GetSpeedNn() const;
     double GetAngleNn() const;
+    double GetAngle() const;
+
     int GetIntID() const;
     int GetIntIDN() const;
     const JEllipse & GetEllipse() const;
@@ -230,6 +239,8 @@ public:
     // Eigenschaften der Ellipse
     const Point & GetPos() const;
     const Point & GetDirNn() const;
+    const Point & GetDir() const;
+
     
     int GetCellPos() const;
     const Point & GetV() const;

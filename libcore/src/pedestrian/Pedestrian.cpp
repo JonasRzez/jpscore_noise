@@ -105,9 +105,12 @@ Pedestrian::Pedestrian()
     _ticksInThisRoom     = 0;
     _speed_nn = -1.;
     _angle_nn_int = -2.;
+    _angle_int = -2.;
     _intID = -1;
     _intIDN = -1;
     _direction_nn = Point(0.,0.);
+    _direction = Point(0.,0.);
+
 
     _agentsCreated++; //increase the number of object created
     _FED_In           = 0.0;
@@ -191,9 +194,12 @@ Pedestrian::Pedestrian(const StartDistribution & agentsParameters, Building & bu
     _waitingPos = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
     _speed_nn = -1.;
     _angle_nn_int = -2.;
+    _angle_int = -2.;
     _intID = -1;
     _intIDN = -1;
     _direction_nn = Point(0.,0.);
+    _direction = Point(0.,0.);
+
 }
 
 
@@ -318,6 +324,11 @@ void Pedestrian::SetDirNn(const Point & direction_nn)
     _direction_nn = direction_nn;
 }
 
+void Pedestrian::SetDir(const Point & direction)
+{
+    _direction = direction;
+}
+
 void Pedestrian::SetSpeedNn(double speed_nn)
 {
     _speed_nn = speed_nn;
@@ -326,6 +337,11 @@ void Pedestrian::SetSpeedNn(double speed_nn)
 void Pedestrian::SetAngleNn(double angle_nn_int)
 {
     _angle_nn_int = angle_nn_int;
+}
+
+void Pedestrian::SetAngle(double angle_int)
+{
+    _angle_int = angle_int;
 }
 
 void Pedestrian::SetIntID(int intID)
@@ -554,6 +570,11 @@ const Point & Pedestrian::GetDirNn() const
     return _direction_nn;
 }
 
+const Point & Pedestrian::GetDir() const
+{
+    return _direction;
+}
+
 int Pedestrian::GetCellPos() const
 {
     return _lastCellPosition;
@@ -577,6 +598,11 @@ double Pedestrian::GetSpeedNn() const
 double Pedestrian::GetAngleNn() const
 {
     return _angle_nn_int;
+}
+
+double Pedestrian::GetAngle() const
+{
+    return _angle_int;
 }
 
 int Pedestrian::GetIntID() const

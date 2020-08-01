@@ -202,7 +202,7 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
         //double b       = ped->GetSmallerAxis();
         double phi     = atan2(ped->GetEllipse().GetSinPhi(), ped->GetEllipse().GetCosPhi());
         double RAD2DEG = 180.0 / M_PI;
-        double dir_phi = atan2(ped->GetDirNn()._x,ped->GetDirNn()._y) * RAD2DEG;
+        double dir_phi = atan2(ped->GetDirNn()._y,ped->GetDirNn()._x);
         double speed_nn = ped->GetSpeedNn();
         double angle_nn_int = ped->GetAngleNn();
         int intID = ped->GetIntID();

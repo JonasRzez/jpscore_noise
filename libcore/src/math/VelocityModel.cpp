@@ -204,7 +204,7 @@ void VelocityModel::ComputeNextTimeStep(
 
             // calculate new direction ei according to (6)
             Point direction = e0(ped, room); //+ repPed + repWall;
-            ped->SetDirNn(direction);
+            ped->SetDirNn(direction.Normalized());
 
             std::random_device rd;
             std::mt19937 eng(rd());
@@ -408,12 +408,21 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     Point dir_j = ped2->GetDir();
     double dir_angle_nn;
     if (dir_nn.NormSquare() > 0. && dir_nn_j.NormSquare() > 0.){
-        dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
+        //dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
+        dir_angle_nn = dir_nn._x * dir_nn_j._x + dir_nn._y * dir_nn_j._y;
+        /*if(dir_angle_nn == 1.){
+            LOG_ERROR(
+            "Agent {:d} and agent {:d} interact with angle 0, with length {:0.2f} and {:0.2f}",
+            ped1->GetID(),
+            ped2->GetID(),
+            dir_nn.NormSquare(),
+            dir_nn_j.NormSquare()
+            );*/
+        //}
     }
     else{
         dir_angle_nn = -3.;
     }
-    double dir_angle = dir.Normalized().ScalarProduct(dir_j.Normalized());
     if(periodic) {
         double x   = ped1->GetPos()._x;
         double x_j = ped2->GetPos()._x;
@@ -444,7 +453,7 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     if((condition1 >= 0) && (condition2 <= l / Distance)){
         // return a pair <dist, condition1>. Then take the smallest dist. In case of equality the biggest condition1
         if (abs(dir_angle_nn) > 1.)
-            return std::make_tuple(distp12.Norm(), -5.,ped2->GetID());
+            return std::make_tuple(distp12.Norm(), -3.,ped2->GetID());
         else
             return std::make_tuple(distp12.Norm(), dir_angle_nn, ped2->GetID());
     }

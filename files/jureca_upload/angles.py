@@ -98,7 +98,6 @@ for T_test in T_test_list:
 
             # print(p0)
             # df = df[df['FR'] > fps * 10]
-            df = df[df['Y'] > 0]
             df = df[df['X'] * df['X'] + df['Y'] * df['Y'] < 1. ** 2]
             v_nn_mean = np.append(v_nn_mean, df['speed_nn'].values.astype(np.float))
             # df = df[abs(df['X']) < 0.5]

@@ -408,8 +408,8 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     Point dir_j = ped2->GetDir();
     double dir_angle_nn;
     if (dir_nn.NormSquare() > 0. && dir_nn_j.NormSquare() > 0.){
-        //dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
-        dir_angle_nn = dir_nn._x * dir_nn_j._x + dir_nn._y * dir_nn_j._y;
+        dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
+        //dir_angle_nn = dir_nn._x * dir_nn_j._x + dir_nn._y * dir_nn_j._y;
         /*if(dir_angle_nn == 1.){
             LOG_ERROR(
             "Agent {:d} and agent {:d} interact with angle 0, with length {:0.2f} and {:0.2f}",

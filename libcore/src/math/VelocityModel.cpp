@@ -426,7 +426,7 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     else{
         dir_angle_nn = -3.;
     }
-    double dir_angle = dir.Normalized().ScalarProduct(dir_j.Normalized());
+    //double dir_angle = dir.Normalized().ScalarProduct(dir_j.Normalized());
     if(periodic) {
         double x   = ped1->GetPos()._x;
         double x_j = ped2->GetPos()._x;

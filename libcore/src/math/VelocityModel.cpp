@@ -272,7 +272,7 @@ void VelocityModel::ComputeNextTimeStep(
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
             ped->SetSpeedNn(OptimalSpeed(ped, spacing_nonoise));
             //ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
-            ped->SetAngleNn(std::get<1>(spacings[0]));
+            ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
             ped->SetIntID(std::get<2>(spacings_nonoise[0]));
             ped->SetIntIDN(std::get<2>(spacings[0]));
             
@@ -409,7 +409,20 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     double dir_angle_nn;
     if (dir_nn.NormSquare() > 0. && dir_nn_j.NormSquare() > 0.){
         dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
-    }
+        /*if (dir_angle_nn == 1){
+            LOG_WARNING(
+                    "dir x ({:.2f}) dir y ({:.2f}) dirj x ({:.2f}) dirj y ({:.2f}) with pos1 ({:.2f},{:.2f}) and pos2 ({:.2f},{:.2f}) ",
+                    dir_nn._x,
+                    dir_nn._y,
+                    dir_nn_j._x,
+                    dir_nn_j._y,
+                    ped1->GetPos()._x,
+                    ped1->GetPos()._y,
+                    ped2->GetPos()._x,
+                    ped2->GetPos()._y);
+            }*/
+        }
+    
     else{
         dir_angle_nn = -3.;
     }

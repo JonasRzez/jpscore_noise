@@ -129,10 +129,10 @@ def var_ini():
     fps = 16
     stepsize = 0.05
     #N_ped = 55
-    i_start = 5
-    i_end = 50
+    i_start = 0
+    i_end = 5
     N_runs = i_end
-    t_max = 104
+    t_max = 105
     periodic = 0
     return rho_ini, T, v0, esigma, fps, stepsize, N_ped, i_start, i_end, t_max, periodic, r, N_runs, rho_min, rho_max, avoid_wall, mot_frac
 

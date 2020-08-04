@@ -402,23 +402,13 @@ std::tuple<double,double,int>
 VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int periodic) const
 {
     Point distp12 = ped2->GetPos() - ped1->GetPos(); // inversed sign
-    Point dir_nn = ped1->GetDirNn();
-    Point dir_nn_j = ped2->GetDirNn();
+    Point dir_nn = ped1->GetDirNn().Normalized();
+    Point dir_nn_j = ped2->GetDirNn().Normalized();
     Point dir = ped1->GetDir();
     Point dir_j = ped2->GetDir();
     double dir_angle_nn;
     if (dir_nn.NormSquare() > 0. && dir_nn_j.NormSquare() > 0.){
-        dir_angle_nn = dir_nn.Normalized().ScalarProduct(dir_nn_j.Normalized());
-        //dir_angle_nn = dir_nn._x * dir_nn_j._x + dir_nn._y * dir_nn_j._y;
-        /*if(dir_angle_nn == 1.){
-            LOG_ERROR(
-            "Agent {:d} and agent {:d} interact with angle 0, with length {:0.2f} and {:0.2f}",
-            ped1->GetID(),
-            ped2->GetID(),
-            dir_nn.NormSquare(),
-            dir_nn_j.NormSquare()
-            );*/
-        //}
+        dir_angle_nn = dir_nn.ScalarProduct(dir_nn_j);
     }
     else{
         dir_angle_nn = -3.;

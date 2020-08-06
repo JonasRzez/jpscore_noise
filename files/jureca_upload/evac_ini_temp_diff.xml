@@ -42,10 +42,10 @@ xsi:noNamespaceSchemaLocation="http://xsd.jupedsim.org/jps_geometry.xsd" unit="m
             <periodic>{{periodic}}</periodic>
             <periodic_boundaries ymin = "{{l}}" ymax = "{{ll}}" xmin = "-{{b}}" xmax = "{{b}}" />
             <stepsize>{{stepsize}}</stepsize>
-            <write_VTK_files>true</write_VTK_files>
+            <write_VTK_files>false</write_VTK_files>
 
             <exit_crossing_strategy>8</exit_crossing_strategy>
-            <delta_h>0.0625</delta_h>
+            <delta_h>0.0125</delta_h>
             <wall_avoid_distance>{{aviod_wall}}</wall_avoid_distance>
             <use_wall_avoidance>true</use_wall_avoidance>
             

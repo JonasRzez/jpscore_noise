@@ -202,14 +202,14 @@ void TrajectoriesTXT::WriteFrame(int frameNr, Building * building)
         //double b       = ped->GetSmallerAxis();
         double phi     = atan2(ped->GetEllipse().GetSinPhi(), ped->GetEllipse().GetCosPhi());
         double RAD2DEG = 180.0 / M_PI;
-        double dir_phi = atan2(ped->GetDirNn()._x,ped->GetDirNn()._y);
+        double dir_phi = atan2(ped->GetDirNn()._y,ped->GetDirNn()._x);
         double speed_nn = ped->GetSpeedNn();
         double angle_nn_int = ped->GetAngleNn();
         int intID = ped->GetIntID();
         int intIDN = ped->GetIntIDN();
         unsigned int precision = GetPrecision();
         std::string frame      = fmt::format(
-            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.10f}\t{:d}\t{:0.3f}",
+            "{:d}\t{:d}\t{:0.{}f}\t{:0.{}f}\t{:0.2f}\t{:d}\t{:0.2f}\t{:0.10f}\t{:d}\t{:0.10f}",
             ped->GetID(),
             frameNr,
             x,

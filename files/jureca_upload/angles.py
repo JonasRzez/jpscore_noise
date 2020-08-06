@@ -97,10 +97,6 @@ for T_test in T_test_list:
             # print(p0)
             if p0 > 0:
                 p0count += 1
-            #print(p0)
-            #df = df[df['FR'] > fps * 10]
-            df = df[df['Y'] > 0]
-            df = df[df['IntID'] > 0]
             v_nn_mean = np.append(v_nn_mean, df['speed_nn'].values.astype(np.float))
             angle_nn = np.append(angle_nn, np.arccos(df['ANGLE_int_nn'].values.astype(np.float)) * 180. / 3.1415)
         print(p0count)

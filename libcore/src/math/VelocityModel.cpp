@@ -272,7 +272,7 @@ void VelocityModel::ComputeNextTimeStep(
             Point speed = direction.Normalized() * OptimalSpeed(ped, spacing);
             ped->SetSpeedNn(OptimalSpeed(ped, spacing_nonoise));
             //ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
-            ped->SetAngleNn(std::get<1>(spacings[0]));
+            ped->SetAngleNn(std::get<1>(spacings_nonoise[0]));
             ped->SetIntID(std::get<2>(spacings_nonoise[0]));
             ped->SetIntIDN(std::get<2>(spacings[0]));
             
@@ -413,6 +413,9 @@ VelocityModel::GetSpacing(Pedestrian * ped1, Pedestrian * ped2, Point ei, int pe
     else{
         dir_angle_nn = -3.;
     }
+
+        }
+    //double dir_angle = dir.Normalized().ScalarProduct(dir_j.Normalized());
     if(periodic) {
         double x   = ped1->GetPos()._x;
         double x_j = ped2->GetPos()._x;
